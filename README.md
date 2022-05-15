@@ -49,6 +49,10 @@ Walkthrough video coming soon.
 
 ## Content
 
+- [ ] MFCC_primer.ipynb
+
+coming soon!
+
 - [ ] MFCC_extraction.py
 
 coming soon!
