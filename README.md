@@ -48,7 +48,7 @@ Walkthrough video coming soon.
 
 ## Content
 
-- [ ] MFCC_extracts.json
+- [ ] MFCC_extraction.py
 
 coming soon!
 
@@ -56,14 +56,13 @@ coming soon!
 
 coming soon!
 
-- [ ] network_train_and_test.ipynb
-
-coming soon!
-
 - [ ] models.py
 
 coming soon!
 
+- [ ] sample_run.ipynb
+
+coming soon!
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
