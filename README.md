@@ -48,25 +48,22 @@ Walkthrough video coming soon.
 
 ## Content
 
-- [ ] gen_ppx_score
+- [ ] MFCC_extracts.json
 
 coming soon!
 
-- [ ] gen_ppx_notebook
+- [ ] network_train_and_test.py
 
 coming soon!
 
-- [ ] ppx_descriptive_stats
+- [ ] network_train_and_test.ipynb
 
 coming soon!
 
-- [ ] ppx_output
+- [ ] models.py
 
 coming soon!
 
-- [ ] statistical_calculations
-
-coming soon!
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
