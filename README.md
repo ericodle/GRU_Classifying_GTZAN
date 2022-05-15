@@ -8,7 +8,7 @@
 <h3 align="center">Genre Classification Using LSTM</h3>
 
   <p align="center">
-  In this project, we explored various artifical neural network (ANN) approaches to achieve near-human accuracy in a music genre classification task. By converting raw .wav audio input into an array of MFCC values, we were able to achieve our best result (90.7% accuracy) using a Gated Recurrent Unit (GRU) model written in PyTorch. This repository serves as a source of supplementary material for a music genre classification conference paper currently under review. We herein archive our training data, Python scripts, Google Colab notebooks, and statistical calculations for the reference of anyone interested.
+  In this project, we explore various artifical neural network (ANN) approaches to achieve near-human accuracy in a music genre classification task. By converting raw .wav audio input into an array of MFCC values, we are able to achieve our best result (90.7% accuracy) using a Gated Recurrent Unit (GRU) model written in PyTorch. This repository serves as a source of supplementary material for a music genre classification conference paper currently under review. We herein archive our Python scripts and provide a sample Google Colab notebook for the reference of anyone interested.
     <br />
     <br />
     <a href="https://github.com/github_username/repo_name">View Demo</a>
@@ -24,8 +24,9 @@
 <!-- ABOUT THE PROJECT -->
 ## About this Project
 
-This was my first project with Professor Rebecca Lin (Feng Chia University, Taiwan) during the Taiwan Experience Exchange Program. 
+This was my first project with Professor Rebecca Lin (Feng Chia University, Taiwan) during the Taiwan Experience Exchange Program. Classifying music genre was my initial experience both in writing/training ANNs from scratch as well as in audio signal analysis, and I had a lot of catching up to do. Through a wealth of online resources, particularly the MFCC tutorials provided by [Valerio Velardo](https://github.com/musikalkemist), we were able to train models with decent generaliation and test classification accuracy. 
 
+Our results are based on the [GTZAN](http://marsyas.info/index.html) music genre dataset, which provides 10 human-classified genre folders: blues, classical, country, disco, hiphop, jazz, metal, pop, reggae, and rock. Each genre folder contains 100 30-second audio clips of genre-specific songs in .wav format. Following previous work in this field, we extracted [Mel-frequency cepstral coefficients](https://en.wikipedia.org/wiki/Mel-frequency_cepstrum), or MFCCs, from each audio clip, divided the entire shuffled set into an 80:10:10 train/validation/test split, and played around with multi-layer perceptron, convolutional, and recurrent networks/hyperparamteters until we got a model that achieved at least 90% accuracy.
 
 We hope this project inspires you to contribute to our project, incorporate our tools, and play around with ANN models yourself! 
 
