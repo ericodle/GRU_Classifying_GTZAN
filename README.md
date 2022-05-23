@@ -50,6 +50,7 @@ Walkthrough video coming soon.
 ## Content
 
 - [ ] MFCC_primer.ipynb
+
 "One Bourbon, One Scotch, One Beer" .wav file
 
 - [ ] MFCC_primer.ipynb
