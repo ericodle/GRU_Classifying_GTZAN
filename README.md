@@ -62,9 +62,13 @@ coming soon!
 
 coming soon!
 
-- [ ] sample_run.ipynb
+- [ ] live_runs
 
-coming soon!
+This folder contains a collection of Jupyter Notebooks (linked to Google Colab) that were saved and uploaded to GitHub immediately after running. In their currently saved state, they serve as a record of the experimental runs on which we base our results. Of course, users are welcome to play around with these scripts and try to beat our top test accuracy of 90.7%!
+
+- [ ] GRU_CM
+
+We herein provide a representative graphic for this README file and, by extension, project. This CM (confusion matrix) obtained upon testing our GRU model serves the additional function of showing our best achieved performance.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
