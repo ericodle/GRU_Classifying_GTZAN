@@ -39,11 +39,6 @@ We hope this project inspires you to contribute to our project, incorporate our 
 This project involves the training of artificial neural networks, so we recommend using either a powerful GPU or a Google Colab notebook.
 
 
-<!-- USAGE EXAMPLES -->
-## Walkthrough
-
-Walkthrough video coming soon.
-
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
