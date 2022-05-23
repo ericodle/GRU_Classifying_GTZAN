@@ -51,7 +51,7 @@ Walkthrough video coming soon.
 
 - [ ] MFCC_primer.ipynb
 
-"One Bourbon, One Scotch, One Beer" .wav file
+blues.00000.wav. Music clip "One Bourbon, One Scotch, One Beer" from GTZAN.
 
 - [ ] MFCC_primer.ipynb
 
