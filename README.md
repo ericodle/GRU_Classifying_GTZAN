@@ -49,13 +49,13 @@ Walkthrough video coming soon.
 
 ## Content
 
+- blues.00000.wav
+
+This .wav file is provided as a test music clip. The file itself was taken from the same download of the GTZAN dataset as used throughout this project, and the excerpt is from the classic John Lee Hooker song "One Bourbon, One Scotch, One Beer." It is classified in GTZAN as Blues.
+
 - [ ] MFCC_primer.ipynb
 
-blues.00000.wav. Music clip "One Bourbon, One Scotch, One Beer" from GTZAN.
-
-- [ ] MFCC_primer.ipynb
-
-coming soon!
+This Jupyter Notebook with direct link to a ready-to-use Google Colab environment is intended to answer the questions "What is an MFCC?" and "How did we get our MFCCs?"
 
 - [ ] MFCC_extraction.py
 
