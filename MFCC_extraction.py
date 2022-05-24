@@ -6,8 +6,8 @@ import librosa
 
 # Ensure that your GTZAN dataset and output paths are correct.
 # Also ensure that your copy of the GTZAN dataset is correctly structed by genre folder.
-GTZAN_PATH = "/content/drive/MyDrive/GTZAN"
-OUTPUT_PATH = "/content/drive/MyDrive/data_10.json"
+GTZAN_PATH = "your_gtzan_path_here"
+OUTPUT_PATH = "your_output_path_here"
 
 # We need to know some basic information about each .wav file.
 SAMPLE_RATE = 22050 # This is the sample rate used in GTZAN audio.
