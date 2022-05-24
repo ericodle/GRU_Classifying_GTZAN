@@ -1,75 +1,99 @@
+# Import required packages. The only one that may require installation is librosa.
 import json
 import os
 import math
 import librosa
 
+# Ensure that your GTZAN dataset and output paths are correct.
+# Also ensure that your copy of the GTZAN dataset is correctly structed by genre folder.
+GTZAN_PATH = "/content/drive/MyDrive/GTZAN"
+OUTPUT_PATH = "/content/drive/MyDrive/data_10.json"
 
-DATASET_PATH = "/content/drive/MyDrive/GTZAN"
-JSON_PATH = "/content/drive/MyDrive/data_10.json"
-SAMPLE_RATE = 22050
-TRACK_DURATION = 30 # measured in seconds
-SAMPLES_PER_TRACK = SAMPLE_RATE * TRACK_DURATION
+# We need to know some basic information about each .wav file.
+SAMPLE_RATE = 22050 # This is the sample rate used in GTZAN audio.
+SONG_LENGTH = 30 # Unit: seconds
+SAMPLE_COUNT = SAMPLE_RATE * SONG_LENGTH
 
-def save_mfcc(dataset_path, json_path, num_mfcc=13, n_fft=2048, hop_length=512, num_segments=5):
-    """Extracts MFCCs from music dataset and saves them into a json file along witgh genre labels.
-        :param dataset_path (str): Path to dataset
-        :param json_path (str): Path to json file used to save MFCCs
-        :param num_mfcc (int): Number of coefficients to extract
-        :param n_fft (int): Interval we consider to apply FFT. Measured in # of samples
-        :param hop_length (int): Sliding window for FFT. Measured in # of samples
-        :param: num_segments (int): Number of segments we want to divide sample tracks into
-        :return:
-        """
+# We herein define the key function that extracts MFCCs from each song clip and saves it to a json file.
+# The "segs" argument represents how many sub-clip segments of equal duration each audio clip should be divided into.
+# Other argument values are regarded as conventional for this field.
+def mfcc_to_json(gtzan_path, output_path, mfcc_count=13, n_fft=2048, hop_length=512, segs=10):
 
-    # dictionary to store mapping, labels, and MFCCs
-    data = {
+    # This variable defines the hierarchical structure of how our MFCC extracts will be organized.
+    extracted_data = {
         "mapping": [],
         "labels": [],
         "mfcc": []
     }
     
-    samples_per_segment = int(SAMPLES_PER_TRACK / num_segments)
-    num_mfcc_vectors_per_segment = math.ceil(samples_per_segment / hop_length)
+    seg_length = int(SAMPLE_COUNT / segs)
+    mfccs_per_seg = math.ceil(seg_length / hop_length)
 
-    # loop through all genre sub-folder
-    for i, (dirpath, dirnames, filenames) in enumerate(os.walk(dataset_path)):
+    # GTZAN is a big folder holding 10 smaller folders, each containing 100 song clips of the same genre.
+    # Here we work through one genre folder at a time using the enumerate(os.walk()) function.
+    # This process should keep our genre labels, song files, and MFCC values all in hierarchical order.
+    for i, (folder_path, folder_name, file_name) in enumerate(os.walk(gtzan_path)):
 
-        # ensure we're processing a genre sub-folder level
-        if dirpath is not dataset_path:
+        # This "IF" statement makes sure we are looking at one of the genre folders, not the main GTZAN folder.
+	# If
+        if folder_path is not gtzan_path:
 
             # save genre label (i.e., sub-folder name) in the mapping
-            semantic_label = dirpath.split("/")[-1]
-            data["mapping"].append(semantic_label)
-            print("\nProcessing: {}".format(semantic_label))
+            genre_label = folder_path.split("/")[-1]
+            extracted_data["mapping"].append(genre_label)
+            print("\nProcessing: {}".format(genre_label))
 
             # process all audio files in genre sub-dir
-            for f in filenames:
+            for f in file_name:
 
 		# load audio file
-                file_path = os.path.join(dirpath, f)
-                signal, sample_rate = librosa.load(file_path, sr=SAMPLE_RATE)
+                file_path = os.path.join(folder_path, f)
+                audio_sig, sr = librosa.load(file_path, sr=SAMPLE_RATE)
 
                 # process all segments of audio file
-                for d in range(num_segments):
+                for d in range(segs):
 
-                    # calculate start and finish sample for current segment
-                    start = samples_per_segment * d
-                    finish = start + samples_per_segment
+                    # We must segment each audio clip by defining the beginning and end.
+                    GO = seg_length * d
+                    STOP = GO + seg_length
 
-                    # extract mfcc
-                    mfcc = librosa.feature.mfcc(signal[start:finish], sample_rate, n_mfcc=num_mfcc, n_fft=n_fft, hop_length=hop_length)
+                    # Here, we tell librosa to do the actual MFCC calculations.
+                    mfcc = librosa.feature.mfcc(audio_sig[GO:STOP], sr, n_mfcc=mfcc_count, n_fft=n_fft, hop_length=hop_length)
                     mfcc = mfcc.T
 
-                    # store only mfcc feature with expected number of vectors
-                    if len(mfcc) == num_mfcc_vectors_per_segment:
-                        data["mfcc"].append(mfcc.tolist())
-                        data["labels"].append(i-1)
+                    # This "IF" statement will make sure that the MFCC extract set for a segment is the appropriate size.
+		    # Possible problems include a song clip not exactly 30 seconds or a file in GTZAN that has become corrupted.
+		    # We don't want to break the whole process for just one error in such a large dataset.
+		    # S0, we simply omit it and move on.
+                    if len(mfcc) == mfccs_per_seg:
+                        extracted_data["mfcc"].append(mfcc.tolist())
+                        extracted_data["labels"].append(i-1)
                         print("{}, segment:{}".format(file_path, d+1))
+		    
+		
 
-    # save MFCCs to json file
-    with open(json_path, "w") as fp:
-        json.dump(data, fp, indent=4)
+    # Finally, we DUMP the labeled mfcc extract data to a file at out specified output path.
+    with open(output_path, "w") as fp:
+        json.dump(extracted_data, fp, indent=4)
         
-        
+# The resulting file will be about 640 MB.
+# If everything worked, the JSON file should start with the lines:
+# Note that "pop" = label 0; "classical"= label 1; "jazz" = label 2....etc.
+#{
+#    "mapping": [
+#        "pop",
+#        "classical",
+#        "jazz",
+#        "hiphop",
+#        "reggae",
+#        "disco",
+#        "metal",
+#        "country",
+#        "blues",
+#        "rock"
+#    ],
+#    "labels": [
+
+# Classic Python failsafe code that protects users from accidentally calling a script.
 if __name__ == "__main__":
-    save_mfcc(DATASET_PATH, JSON_PATH, num_segments=10)
+    mfcc_to_json(GTZAN_PATH, OUTPUT_PATH)
