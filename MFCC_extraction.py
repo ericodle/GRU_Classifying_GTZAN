@@ -43,18 +43,18 @@ def mfcc_to_json(gtzan_path, output_path, mfcc_count=13, n_fft=2048, hop_length=
             extracted_data["mapping"].append(genre_label)
             print("\nProcessing: {}".format(genre_label))
 
-            # process all audio files in genre sub-dir
-            for f in file_name:
+            # Iterate down every song clip in the genre sub-folder.
+            for song_clip in file_name:
 
-		# load audio file
-                file_path = os.path.join(folder_path, f)
+		# The song clip must be loaded into memory before it is manipulated.
+                file_path = os.path.join(folder_path, song_clip)
                 audio_sig, sr = librosa.load(file_path, sr=SAMPLE_RATE)
 
-                # process all segments of audio file
-                for d in range(segs):
+                # Working one segment at a time, extract the MFCCs in a given song clip.
+                for k in range(segs):
 
                     # We must segment each audio clip by defining the beginning and end.
-                    GO = seg_length * d
+                    GO = seg_length * k
                     STOP = GO + seg_length
 
                     # Here, we tell librosa to do the actual MFCC calculations.
@@ -68,7 +68,7 @@ def mfcc_to_json(gtzan_path, output_path, mfcc_count=13, n_fft=2048, hop_length=
                     if len(mfcc) == mfccs_per_seg:
                         extracted_data["mfcc"].append(mfcc.tolist())
                         extracted_data["labels"].append(i-1)
-                        print("{}, segment:{}".format(file_path, d+1))
+                        print("{}, segment:{}".format(file_path, k+1))
 		    
 		
 
