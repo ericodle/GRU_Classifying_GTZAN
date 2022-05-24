@@ -52,7 +52,7 @@ This Jupyter Notebook with direct link to a ready-to-use Google Colab environmen
 
 - [ ] MFCC_extraction.py
 
-coming soon!
+This script extracts MFCCs from the GTZAN dataset music files and saves them in JSON format. The resulting file is about 640 MB in size, and contains an ordered list of 13 MFCC values per segment of each song within the dataset. Moreover, this data is labeled with values 0 through 9 corresponding to one of the ten genres present.
 
 - [ ] network_train_and_test.py
 
