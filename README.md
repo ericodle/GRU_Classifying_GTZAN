@@ -37,7 +37,7 @@ Download this repository by going up to the green "Code" button at the top right
 
 Alternatively, you can also clone the repo directly using the following command.
 
-  ```python
+  ```sh
   # Replace "your_folderpath_here" with the actual folder where you want the project to go.
   cd /your_folderpath_here
   git clone git@github.com:ericodle/GRU_Classifying_GTZAN.git
