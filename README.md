@@ -51,17 +51,11 @@ We hope this project inspires you to contribute to our project, incorporate our 
 > Then, you must manually relocate the full dataset (parent folder containing 10 genre sub-folders, each with 100 music clips) into the "GTZAN_dataset" project folder.
 
 ```sh
-# This script will extract MFCC's from each song clip and output the entire dataset as a genre-labeled JSON file.
+# This script will extract MFCC's from each song clip.
 ./MFCC_extraction.py
 ```
 > Note that the resulting JSON file is saved in the "MFCCs" folder as a JSON file about 640 MB in size.
-> 
-## Scripts
 
-We provide several shell scripts for easy managing the experiments. (See
-[here](scripts/README.md) for a detailed documentation.)
-
-> __Below we assume the working directory is the repository root.__
 
 ### Train a new model
 
@@ -209,7 +203,12 @@ Distributed under the GNU Lesser General Public License. See `LICENSE.txt` for m
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
+Citing
+------
 
+Please cite the following paper if you use the code provided in this repository.
+
+Conference citation coming soon!
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
