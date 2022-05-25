@@ -39,7 +39,8 @@ We hope this project inspires you to contribute to our project, incorporate our 
 
   ```sh
   # Install dependencies
-  pip install -r dependencies.txt
+  pip install librosa
+  pip install torch torchvision
   ```
 
 ### Download GTZAN and extract MFCCs
@@ -55,25 +56,30 @@ We hope this project inspires you to contribute to our project, incorporate our 
 > Note that the resulting JSON file is saved in the "MFCCs" folder as a JSON file about 640 MB in size.
 
 
-### Train a new model
+### Train a model from scratch
 
-1. Run the following command to set up a new experiment with default settings.
+Run the following script to set up a new experiment with default settings.
+You will need to specify the type of neural network you want to use.
+After the training process is complete, a train/validation curve will be saved in the project root directory.
+The final model state will also be saved for the next phase: testing. 
 
    ```sh
-   # Set up a new experiment
-   ./scripts/setup_exp.sh "./exp/my_experiment/" "Some notes on my experiment"
+   # Set up a new training run
+   ./train_model.py
    ```
+Note #1: Training requires a GPU to complete in a timely manner. You can either use your own hardware, or work on a Colab environment.
+If you use a GPU, make sure you have cuda and all related dependencies set up in your environment.
 
-2. Modify the configuration and model parameter files for experimental settings.
+Note #2: Training is as much an art as it is a science, and often involves playing around with different hyperparameters. Users are encouraged to go into the train_model.py script and change the optimizer, learning rate, epochs, or other parameters. The default settings represent what worked best for us at the time of experimentation.
 
+### Testing a trained model
 
-### Collect training data
-
-Run the following command to collect training data from MIDI files.
+You now have a model trained from scratch on MFCCs extracted from the GTZAN music genre dataset. Nice! It is time to see how well it can classify musical genre.
+In our conference paper, we used a shuffled 80:10:10 split for training, train phase validation, and testing. Therefore, the music clip segments reserved for testing come from same dataset, but have never been seen by the trained model before. Given the scope of the GTZAN dataset, your trained model is unlikely to distinguish Bunun polyphonic chant music from Ainu rimse dance music. Still, a neural network is only as good as the data on which it is trained. Within this specific training data, how well can your model classify musical genre?
 
   ```sh
   # Collect training data
-  ./scripts/collect_data.sh "./midi_dir/" "data/train.npy"
+  ./test_model
   ```
 
 ### Use pretrained models
