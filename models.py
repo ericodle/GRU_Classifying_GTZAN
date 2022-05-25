@@ -2,7 +2,7 @@
 #       　   Multi-Layer Perceptron     　 　   #
 ################################################
 
-class MLP(nn.Module):
+class MLP_model(nn.Module):
   
   def __init__(self):
     super().__init__()
@@ -34,7 +34,7 @@ class MLP(nn.Module):
 #        Convolutional Neural Network          #
 ################################################
 
-class CNN(nn.Module):
+class CNN_model(nn.Module):
   
   def __init__(self):
     super().__init__()
@@ -82,7 +82,7 @@ class CNN(nn.Module):
 #          Long Short-Term Memory     　       #
 ################################################
 
-class LSTMmodel(nn.Module):
+class LSTM_model(nn.Module):
     """Very simple implementation of LSTM-based time-series classifier."""
     
     def __init__(self, input_dim, hidden_dim, layer_dim, output_dim, dropout_prob):
@@ -111,7 +111,7 @@ class LSTMmodel(nn.Module):
 # 　  Bidirection Long Short-Term Memory    　  #
 ################################################
 
-class BiLSTMmodel(nn.Module):
+class BiLSTM_model(nn.Module):
     """Very simple implementation of LSTM-based time-series classifier."""
     
     def __init__(self, input_dim, hidden_dim, layer_dim, output_dim, dropout_prob):
@@ -141,7 +141,7 @@ class BiLSTMmodel(nn.Module):
 #       　   Gated Recurrent Unit      　 　   #
 ################################################
 
-class GRUModel(nn.Module):
+class GRU_model(nn.Module):
     """GRUModel class extends nn.Module class and works as a constructor for GRUs.
 
        GRUModel class initiates a GRU module based on PyTorch's nn.Module class.
