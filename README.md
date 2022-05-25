@@ -33,6 +33,16 @@ We hope this project inspires you to contribute to our project, incorporate our 
 
 ## Getting Started
 
+Download this repository by going up to the green "Code" button at the top right and clicking "Download ZIP".
+
+Alternatively, you can also clone the repo directly using the following command.
+
+  ```python
+  # Replace "your_folderpath_here" with the actual folder where you want the project to go.
+  cd /your_folderpath_here
+  git clone git@github.com:ericodle/GRU_Classifying_GTZAN.git
+  ```
+
 > __For this example, the working directory is the repository root directory.__ 
 
 ### Install dependencies using pip
