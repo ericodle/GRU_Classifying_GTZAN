@@ -96,25 +96,25 @@ Note: The entire MFCC extract JSON file is re-shuffled and split into 80:10:10 t
 
 ## Repository Files
 
-- blues.00000.wav
+- [ ] train_model.py
 
-This .wav file is provided as a test music clip. The file itself was taken from the same download of the GTZAN dataset as used throughout this project, and the excerpt is from the classic John Lee Hooker song "One Bourbon, One Scotch, One Beer." It is classified in GTZAN as Blues.
+coming soon!
 
-- [ ] MFCC_primer.ipynb
-
-This Jupyter Notebook with direct link to a ready-to-use Google Colab environment is intended to answer the questions "What is an MFCC?" and "How did we get our MFCCs?"
-
-- [ ] MFCC_extraction.py
-
-This script extracts MFCCs from the GTZAN dataset music files and saves them in JSON format. The resulting file is about 640 MB in size, and contains an ordered list of 13 MFCC values per segment of each song within the dataset. Moreover, this data is labeled with values 0 through 9 corresponding to one of the ten genres present.
-
-- [ ] network_train_and_test.py
+- [ ] test_model.py
 
 coming soon!
 
 - [ ] models.py
 
 coming soon!
+
+- [ ] MFCC_extraction.py
+
+This script extracts MFCCs from the GTZAN dataset music files and saves them in JSON format. The resulting file is about 640 MB in size, and contains an ordered list of 13 MFCC values per segment of each song within the dataset. Moreover, this data is labeled with values 0 through 9 corresponding to one of the ten genres present.
+
+- [ ] MFCC_primer.ipynb
+
+This Jupyter Notebook with direct link to a ready-to-use Google Colab environment is intended to answer the questions "What is an MFCC?" and "How did we get our MFCCs?"
 
 - [ ] live_runs
 
@@ -123,6 +123,10 @@ This folder contains a collection of Jupyter Notebooks (linked to Google Colab) 
 - [ ] GRU_CM
 
 We herein provide a representative graphic for this README file and, by extension, project. This CM (confusion matrix) obtained upon testing our GRU model serves the additional function of showing our best achieved performance.
+
+- blues.00000.wav
+
+This .wav file is provided as a test music clip. The file itself was taken from the same download of the GTZAN dataset as used throughout this project, and the excerpt is from the classic John Lee Hooker song "One Bourbon, One Scotch, One Beer." It is classified in GTZAN as Blues.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
