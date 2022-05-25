@@ -84,32 +84,6 @@ In our conference paper, we used a shuffled 80:10:10 split for training, train p
 
 Note: The entire MFCC extract JSON file is re-shuffled and split into 80:10:10 train/validation/test subsets each time the train_model.py and test_model.py  scripts are run. Therefore, each train and test run may yield slightly different results. In our experience working on this project, the only factors signifcantly affecting performance were neural network architecture and training hyperparameters.
 
-### Use pretrained models
-
-1. Download pretrained models
-
-   ```sh
-   # Download the pretrained models
-   ./scripts/download_models.sh
-   ```
-
-   You can also download the pretrained models manually
-   ([pretrained_models.tar.gz](https://docs.google.com/uc?export=download&id=19RYAbj_utCDMpU7PurkjsH4e_Vy8H-Uy)).
-
-2. You can either perform inference from a trained model:
-
-   ```sh
-   # Run inference from a pretrained model
-   ./scripts/run_inference.sh "./exp/default/" "0"
-   ```
-
-   or perform interpolation from a trained model:
-
-   ```sh
-   # Run interpolation from a pretrained model
-   ./scripts/run_interpolation.sh "./exp/default/" "0"
-   ```
-
 ## Repository Files
 
 - blues.00000.wav
