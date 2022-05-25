@@ -18,7 +18,6 @@
 </div>
 
 
-
 <!-- ABOUT THE PROJECT -->
 ## About this Project
 
@@ -31,16 +30,127 @@ We hope this project inspires you to contribute to our project, incorporate our 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-<!-- GETTING STARTED -->
-## Getting Started
 
-This project involves the training of artificial neural networks, so we recommend using either a powerful GPU or a Google Colab notebook.
+## Prerequisites
+
+> __For this example, the working directory is the repository root directory.__ 
+
+### Install dependencies
+
+- Using pip
+
+  ```sh
+  # Install dependencies
+  pip install -r dependencies.txt
+  ```
+
+### Download GTZAN and extract MFCCs
+
+> The training/testing music used in this project comes from the GTZAN music genre dataset, which can be downloaded [here](https://www.kaggle.com/datasets/andradaolteanu/gtzan-dataset-music-genre-classification/download) from Kaggle. 
+> You will need to enter some account login details per Kaggle's requirements before the download can begin. 
+> Then, you must manually relocate the full dataset (parent folder containing 10 genre sub-folders, each with 100 music clips) into the "GTZAN_dataset" project folder.
+
+```sh
+# This script will extract MFCC's from each song clip and output the entire dataset as a genre-labeled JSON file.
+./MFCC_extraction.py
+```
+> Note that the resulting JSON file is saved in the "MFCCs" folder as a JSON file about 640 MB in size.
+> 
+## Scripts
+
+We provide several shell scripts for easy managing the experiments. (See
+[here](scripts/README.md) for a detailed documentation.)
+
+> __Below we assume the working directory is the repository root.__
+
+### Train a new model
+
+1. Run the following command to set up a new experiment with default settings.
+
+   ```sh
+   # Set up a new experiment
+   ./scripts/setup_exp.sh "./exp/my_experiment/" "Some notes on my experiment"
+   ```
+
+2. Modify the configuration and model parameter files for experimental settings.
+
+3. You can either train the model:
+
+     ```sh
+     # Train the model
+     ./scripts/run_train.sh "./exp/my_experiment/" "0"
+     ```
+
+   or run the experiment (training + inference + interpolation):
+
+     ```sh
+     # Run the experiment
+     ./scripts/run_exp.sh "./exp/my_experiment/" "0"
+     ```
+
+### Collect training data
+
+Run the following command to collect training data from MIDI files.
+
+  ```sh
+  # Collect training data
+  ./scripts/collect_data.sh "./midi_dir/" "data/train.npy"
+  ```
+
+### Use pretrained models
+
+1. Download pretrained models
+
+   ```sh
+   # Download the pretrained models
+   ./scripts/download_models.sh
+   ```
+
+   You can also download the pretrained models manually
+   ([pretrained_models.tar.gz](https://docs.google.com/uc?export=download&id=19RYAbj_utCDMpU7PurkjsH4e_Vy8H-Uy)).
+
+2. You can either perform inference from a trained model:
+
+   ```sh
+   # Run inference from a pretrained model
+   ./scripts/run_inference.sh "./exp/default/" "0"
+   ```
+
+   or perform interpolation from a trained model:
+
+   ```sh
+   # Run interpolation from a pretrained model
+   ./scripts/run_interpolation.sh "./exp/default/" "0"
+   ```
+
+## Outputs
+
+By default, samples will be generated alongside the training. You can disable
+this behavior by setting `save_samples_steps` to zero in the configuration file
+(`config.yaml`). The generated will be stored in the following three formats by
+default.
+
+- `.npy`: raw numpy arrays
+- `.png`: image files
+- `.npz`: multitrack pianoroll files that can be loaded by the
+  _[Pypianoroll](https://salu133445.github.io/pypianoroll/index.html)_
+  package
+
+You can disable saving in a specific format by setting `save_array_samples`,
+`save_image_samples` and `save_pianoroll_samples` to `False`  in the
+configuration file.
+
+The generated pianorolls are stored in .npz format to save space and processing
+time. You can use the following code to write them into MIDI files.
+
+```python
+from pypianoroll import Multitrack
+
+m = Multitrack('./test.npz')
+m.write('./test.mid')
 
 
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-
-## Content
+## Repository Files
 
 - blues.00000.wav
 
