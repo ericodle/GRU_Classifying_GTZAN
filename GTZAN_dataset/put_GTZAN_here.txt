@@ -1,0 +1,3 @@
+# Put downloaded GTZAN dataset here.
+# Make sure all the sub-folders and songs are in there.
+# The folder size should be around 1.3 GB.
