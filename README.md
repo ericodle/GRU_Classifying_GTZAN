@@ -106,7 +106,7 @@ coming soon!
 
 - [ ] models.py
 
-coming soon!
+This document defines the artifical neural network architectures used in our study. Classes for MLP, CNN, LSTM, BiLSTM, and GRU models are written for PyTorch, which we chose over Keras for its greater granular control. Users are welcome to use these model classes to conduct their own experimentation.
 
 - [ ] MFCC_extraction.py
 
