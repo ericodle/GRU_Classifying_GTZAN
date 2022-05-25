@@ -24,9 +24,7 @@ class MLP_model(nn.Module):
       nn.Softmax()
     )
 
-
   def forward(self, x):
-    '''Forward pass'''
     return self.layers(x)
 
   
@@ -74,7 +72,6 @@ class CNN_model(nn.Module):
 
 
   def forward(self, x):
-    '''Forward pass'''
     return self.layers(x)
   
   
@@ -83,7 +80,6 @@ class CNN_model(nn.Module):
 ################################################
 
 class LSTM_model(nn.Module):
-    """Very simple implementation of LSTM-based time-series classifier."""
     
     def __init__(self, input_dim, hidden_dim, layer_dim, output_dim, dropout_prob):
         super().__init__()
@@ -112,7 +108,6 @@ class LSTM_model(nn.Module):
 ################################################
 
 class BiLSTM_model(nn.Module):
-    """Very simple implementation of LSTM-based time-series classifier."""
     
     def __init__(self, input_dim, hidden_dim, layer_dim, output_dim, dropout_prob):
         super().__init__()
@@ -142,35 +137,10 @@ class BiLSTM_model(nn.Module):
 ################################################
 
 class GRU_model(nn.Module):
-    """GRUModel class extends nn.Module class and works as a constructor for GRUs.
 
-       GRUModel class initiates a GRU module based on PyTorch's nn.Module class.
-       It has only two methods, namely init() and forward(). While the init()
-       method initiates the model with the given input parameters, the forward()
-       method defines how the forward propagation needs to be calculated.
-       Since PyTorch automatically defines back propagation, there is no need
-       to define back propagation method.
-
-       Attributes:
-           hidden_dim (int): The number of nodes in each layer
-           layer_dim (str): The number of layers in the network
-           gru (nn.GRU): The GRU model constructed with the input parameters.
-           fc (nn.Linear): The fully connected layer to convert the final state
-                           of GRUs to our desired output shape.
-
-    """
     def __init__(self, input_dim, hidden_dim, layer_dim, output_dim, dropout_prob):
-        """The __init__ method that initiates a GRU instance.
-
-        Args:
-            input_dim (int): The number of nodes in the input layer
-            hidden_dim (int): The number of nodes in each layer
-            layer_dim (int): The number of layers in the network
-            output_dim (int): The number of nodes in the output layer
-            dropout_prob (float): The probability of nodes being dropped out
-
-        """
-        super(GRUModel, self).__init__()
+       
+        super(GRU_model, self).__init__()
 
         # Defining the number of layers and the nodes in each layer
         self.layer_dim = layer_dim
@@ -185,15 +155,7 @@ class GRU_model(nn.Module):
         self.fc = nn.Linear(hidden_dim, output_dim)
 
     def forward(self, x):
-        """The forward method takes input tensor x and does forward propagation
-
-        Args:
-            x (torch.Tensor): The input tensor of the shape (batch size, sequence length, input_dim)
-
-        Returns:
-            torch.Tensor: The output tensor of the shape (batch size, output_dim)
-
-        """
+       
         # Initializing hidden state for first input with zeros
         h0 = torch.zeros(self.layer_dim, x.size(0), self.hidden_dim).requires_grad_()
         # Forward propagation by passing in the input and hidden state into the model
