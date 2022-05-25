@@ -31,13 +31,11 @@ We hope this project inspires you to contribute to our project, incorporate our 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
-## Prerequisites
+## Getting Started
 
 > __For this example, the working directory is the repository root directory.__ 
 
-### Install dependencies
-
-- Using pip
+### Install dependencies using pip
 
   ```sh
   # Install dependencies
@@ -68,19 +66,6 @@ We hope this project inspires you to contribute to our project, incorporate our 
 
 2. Modify the configuration and model parameter files for experimental settings.
 
-3. You can either train the model:
-
-     ```sh
-     # Train the model
-     ./scripts/run_train.sh "./exp/my_experiment/" "0"
-     ```
-
-   or run the experiment (training + inference + interpolation):
-
-     ```sh
-     # Run the experiment
-     ./scripts/run_exp.sh "./exp/my_experiment/" "0"
-     ```
 
 ### Collect training data
 
