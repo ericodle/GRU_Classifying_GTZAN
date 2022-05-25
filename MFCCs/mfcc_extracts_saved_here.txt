@@ -1,0 +1,2 @@
+# Upon running the MFCC_extraction.py script, the resulting MFCC JSON file is saved in this folder.
+# The resulting file size should be about 640 MB.
