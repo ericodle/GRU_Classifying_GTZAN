@@ -75,12 +75,14 @@ Note #2: Training is as much an art as it is a science, and often involves playi
 ### Testing a trained model
 
 You now have a model trained from scratch on MFCCs extracted from the GTZAN music genre dataset. Nice! It is time to see how well it can classify musical genre.
-In our conference paper, we used a shuffled 80:10:10 split for training, train phase validation, and testing. Therefore, the music clip segments reserved for testing come from same dataset, but have never been seen by the trained model before. Given the scope of the GTZAN dataset, your trained model is unlikely to distinguish Bunun polyphonic chant music from Ainu rimse dance music. Still, a neural network is only as good as the data on which it is trained. Within this specific training data, how well can your model classify musical genre?
+In our conference paper, we used a shuffled 80:10:10 split for training, train phase validation, and testing. Therefore, the music clip segments reserved for testing come from same dataset, but have never been seen by the trained model before. Given the scope of the GTZAN dataset, your trained model is unlikely to distinguish Bunun polyphonic chant music from Ainu rimse dance music. A neural network is only as good as the data on which it is trained. Within the GTZAN training data, how well can your model classify musical genre?
 
   ```sh
-  # Collect training data
-  ./test_model
+  # Test a pre-trained model.
+  ./test_model.py
   ```
+
+Note: The entire MFCC extract JSON file is re-shuffled and split into 80:10:10 train/validation/test subsets each time the train_model.py and test_model.py  scripts are run. Therefore, each train and test run may yield slightly different results. In our experience working on this project, the only factors signifcantly affecting performance were neural network architecture and training hyperparameters.
 
 ### Use pretrained models
 
@@ -107,33 +109,6 @@ In our conference paper, we used a shuffled 80:10:10 split for training, train p
    # Run interpolation from a pretrained model
    ./scripts/run_interpolation.sh "./exp/default/" "0"
    ```
-
-## Outputs
-
-By default, samples will be generated alongside the training. You can disable
-this behavior by setting `save_samples_steps` to zero in the configuration file
-(`config.yaml`). The generated will be stored in the following three formats by
-default.
-
-- `.npy`: raw numpy arrays
-- `.png`: image files
-- `.npz`: multitrack pianoroll files that can be loaded by the
-  _[Pypianoroll](https://salu133445.github.io/pypianoroll/index.html)_
-  package
-
-You can disable saving in a specific format by setting `save_array_samples`,
-`save_image_samples` and `save_pianoroll_samples` to `False`  in the
-configuration file.
-
-The generated pianorolls are stored in .npz format to save space and processing
-time. You can use the following code to write them into MIDI files.
-
-```python
-from pypianoroll import Multitrack
-
-m = Multitrack('./test.npz')
-m.write('./test.mid')
-
 
 ## Repository Files
 
