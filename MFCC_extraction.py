@@ -5,9 +5,10 @@ import math
 import librosa
 
 # Ensure that your GTZAN dataset and output paths are correct.
-# Also ensure that your copy of the GTZAN dataset is correctly structed by genre folder.
-GTZAN_PATH = "your_gtzan_path_here"
-OUTPUT_PATH = "your_output_path_here"
+# This assumes you have downloaded and copy-pasted the full dataset manually into the 'GTZAN_dataset' folder.
+# The GTZAN_PATH variable should be pointing to a folder that contains the 10 genre sub-folders.
+GTZAN_PATH = "./GTZAN_dataset/"
+OUTPUT_PATH = "./MFCCs/"
 
 # We need to know some basic information about each .wav file.
 SAMPLE_RATE = 22050 # This is the sample rate used in GTZAN audio.
