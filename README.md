@@ -98,15 +98,15 @@ Note: The entire MFCC extract JSON file is re-shuffled and split into 80:10:10 t
 
 - [ ] train_model.py
 
-coming soon!
+This script can be called to train a pre-defined neural network class on labeled MFCC data. Upon training completion, the user will be provided a graph of both training and validation following each train epoch. This graph can be useful in diagnosing neural network issues such as overfitting.
 
 - [ ] test_model.py
 
-coming soon!
+This script can be called to test a trained neural network on labeled MFCC data. Once executed, a confusion matrix image will be generated to show the user how well the neural network was able to classify each musical genre.
 
 - [ ] models.py
 
-This document defines the artifical neural network architectures used in our study. Classes for MLP, CNN, LSTM, BiLSTM, and GRU models are written for PyTorch, which we chose over Keras for its greater granular control. Users are welcome to use these model classes to conduct their own experimentation.
+This bit of code defines the artifical neural network architectures used in our study. Classes for MLP, CNN, LSTM, BiLSTM, and GRU models are written for PyTorch, which we chose over Keras for its greater granular control. Users are welcome to use these model classes to conduct their own experimentation.
 
 - [ ] MFCC_extraction.py
 
