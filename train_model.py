@@ -21,9 +21,8 @@ print("Using device", device)
 
 
 # path to json file that stores MFCCs and genre labels for each processed segment
-DATA_PATH = "/content/drive/MyDrive/"
-FILENAME = "data_10.json"
-
+DATA_PATH = "./MFCCs/"
+FILENAME = "extrcted_data.json"
 
 
 def load_data(data_path):
@@ -82,12 +81,6 @@ train_dataloader = DataLoader(train_dataset, batch_size=64, shuffle=True)
 val_dataloader = DataLoader(val_dataset, batch_size=64, shuffle=True)
 test_dataloader = DataLoader(test_dataset, batch_size=64, shuffle=True)
 
-########## Input ANN Class Here ####################
-########## Input ANN Class Here ####################
-########## Input ANN Class Here ####################
-########## Input ANN Class Here ####################
-
-
 def accuracy(out, labels):
 
     _,pred = torch.max(out, dim=1)
@@ -112,7 +105,8 @@ def cosine(t_max, eta_min=0):
     
     return scheduler
   
-  
+# Define your model parameters here.
+# Note: Parameters differ for MLP, CNN, and recurrent model types.
 input_dim = 13    
 hidden_dim = 256
 layer_dim = 2
@@ -123,13 +117,18 @@ dropout_prob = 0.2
 train_acc = []
 val_acc = []
 
+# Training hyperparameters
 lr = 0.001
 n_epochs = 200
 iterations_per_epoch = len(train_dataloader)
 best_acc = 0
 patience, trials = 20, 0
 
-model = GRUModel(input_dim, hidden_dim, layer_dim, output_dim, dropout_prob)
+# Enter the model you wish to test here from corresponding class in ./models.py.
+# Note 1: MLP, CNN, and recurrent models take different parameter arguments.
+# Note 2: Different models may respond better to different optimizer functions.
+
+model = ./models.GRU_model(input_dim, hidden_dim, layer_dim, output_dim, dropout_prob)
 model = model.to(device)
 criterion = nn.CrossEntropyLoss()
 opt = torch.optim.RMSprop(model.parameters(), lr=lr)
@@ -199,6 +198,9 @@ plt.xlabel('num_epochs', fontsize=12)
 plt.ylabel('accuracy', fontsize=12)
 
 plt.ylim((0,100))
+# If necessary, you can expand the X-axis to the number of epochs by un-commenting the line below.
 #plt.xlim((0,n_epochs))
 
 plt.legend(loc='best')
+
+# Script terminates after providing a diagnostic training graph.
