@@ -19,24 +19,16 @@ device = torch.device("cpu") if not torch.cuda.is_available() else torch.device(
 print("Using device", device)
 
 # path to json file that stores MFCCs and genre labels for each processed segment
-DATA_PATH = "/content/drive/MyDrive/data_10.json"
+DATA_PATH = "./MFCCs/extracted_data.json"
 
-# Specify a path
-PATH = "entire_model.pt"
+# Specify the path to your trained model
+MODEL_PATH = "/path/to/your_trained_model"
 
-
-# Load
-model = torch.load(DATA_PATH)
+# Load model
+model = torch.load(MODEL_PATH)
 model.eval()
 
-
 def load_data(data_path):
-    """Loads training dataset from json file.
-        :param data_path (str): Path to json file containing data
-        :return X (ndarray): Inputs
-        :return y (ndarray): Targets
-    """
-
     with open(data_path, "r") as fp:
         data = json.load(fp)
 
@@ -44,10 +36,9 @@ def load_data(data_path):
     X = np.array(data["mfcc"])
     y = np.array(data["labels"])
 
-    print("Data succesfully loaded!")
+    print("Data loaded without apparent error!")
 
     return  X, y
-  
   
 
 def train_val_test_split(X, y, test_ratio):
@@ -56,10 +47,10 @@ def train_val_test_split(X, y, test_ratio):
     X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=val_ratio, shuffle=True)
     return X_train, X_val, X_test, y_train, y_val, y_test
 
-# load data
+# Load data
 X, y = load_data(DATA_PATH)
 
-# create train/test split
+# Create train/test split
 X_train, X_val, X_test, y_train, y_val, y_test = train_val_test_split(X, y, 0.1)
 
 print("train, val, test mfccs")
@@ -88,6 +79,34 @@ train_dataloader = DataLoader(train_dataset, batch_size=64, shuffle=True)
 val_dataloader = DataLoader(val_dataset, batch_size=64, shuffle=True)
 test_dataloader = DataLoader(test_dataset, batch_size=64, shuffle=True)
 
+# Test the trained model on the test dataset
+torch.no_grad()
+count = 0
+correct = 0
+
+true = []
+preds = []
+
+model=model.to(device)
+
+for X_testbatch, y_testbatch in test_dataloader:
+    X_testbatch = X_testbatch.unsqueeze(1).to(device)
+    y_testbatch = y_testbatch.to(device)
+
+    y_val = model(X_testbatch)
+        
+    predicted = torch.max(y_val,1)[1]
+    
+    count+= y_testbatch.size(dim=0)
+    correct += (predicted == y_testbatch).sum()
+
+    true.append(y_testbatch)
+    preds.append(predicted)
+
+ground_truth = torch.cat(true)
+predicted_genres = torch.cat(preds)
+print(f'Test accuracy: {correct.item()}/{count} = {correct.item()*100/(count):7.2f}%')
+
 from sklearn.metrics import confusion_matrix
 import pandas as pd
 import seaborn as sns
@@ -102,3 +121,5 @@ plt.xlabel("Predictions")
 plt.ylabel("Ground Truths")
 plt.title('Confusion Matrix', fontsize=15)
 plt.show()
+
+# This script terminates after providing a confusion matrix of the model's classification results.
