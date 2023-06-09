@@ -49,7 +49,7 @@ Alternatively, you can also clone the repo directly using the following command.
 
   ```sh
   # Install dependencies if necessary. 
-  # You may want to work in a virtual environemnt. Conda environments are nice for that.
+  # You may want to work in a virtual environment. Conda environments are nice for that.
   pip install librosa
   pip install torch torchvision
   ```
