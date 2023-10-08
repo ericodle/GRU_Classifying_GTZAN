@@ -158,12 +158,13 @@ Distributed under the GNU Lesser General Public License. See `LICENSE.txt` for m
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
-Citing
-------
+## Research Paper
 
-Please cite the following paper if you use the code provided in this repository.
+Our research paper, titled "title" provides a comprehensive overview of the methodology, results, and insights derived from this repository. You can access the full paper by following this link: [Research Paper - Semantic Positioning of Japanese Adverbs](https://example.com/your-research-paper-link).
 
-Conference citation coming soon!
+### Citation
+
+If you use our research or findings in your work, we kindly request that you cite our paper using the following citation format:
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
