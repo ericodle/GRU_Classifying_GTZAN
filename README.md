@@ -160,7 +160,7 @@ Distributed under the GNU Lesser General Public License. See `LICENSE.txt` for m
 
 ## Research Paper
 
-Our research paper, titled "title" provides a comprehensive overview of the methodology, results, and insights derived from this repository. You can access the full paper by following this link: [Research Paper - Semantic Positioning of Japanese Adverbs](https://example.com/your-research-paper-link).
+Our research paper, titled "Comparing Recurrent Neural Network Types in a Music Genre Classification Task: Gated Recurrent Unit Superiority Using the GTZAN Dataset" provides a comprehensive overview of the methodology, results, and insights derived from this repository. You can access the full paper by following this link: [Research Paper - Semantic Positioning of Japanese Adverbs](https://example.com/your-research-paper-link).
 
 ### Citation
 
