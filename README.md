@@ -1,13 +1,4 @@
-<!-- PROJECT LOGO -->
-<br />
-<div align="center">
-  <a href="https://github.com/github_username/repo_name">
-    <img src="https://github.com/ericodle/Genre-Classification-Using-LSTM/blob/main/GRU_CM.jpg" alt="Logo" width="400" height="350">
-  </a>
-
-<h3 align="center">Music Genre Classification Using Neural Networks</h3>
-
-  <p align="center">
+<p align="center">
   In this project, we explore various artifical neural network (ANN) approaches to achieve near-human accuracy in a music genre classification task. By converting raw .wav audio input into an array of MFCC values, we are able to achieve our best result (90.7% accuracy) using a Gated Recurrent Unit (GRU) model written in PyTorch. This repository serves as a source of supplementary material for a music genre classification conference paper currently under review. We herein archive our Python scripts and provide a sample Google Colab notebook for the reference of anyone interested.
     <br />
     <br />
@@ -150,33 +141,32 @@ If this is your first pull request, just follow the steps below:
 
 
 
-<!-- LICENSE -->
-## License
-
-This project is open-source and is released under the [MIT License](LICENSE). Feel free to use and build upon our work while giving appropriate credit.
-
-
-## Research Paper
+## Citing Our Research
 
 Our research paper, titled "Comparing Recurrent Neural Network Types in a Music Genre Classification Task: Gated Recurrent Unit Superiority Using the GTZAN Dataset" provides a comprehensive overview of the methodology, results, and insights derived from this repository. You can access the full paper by following this link: [Research Paper - Semantic Positioning of Japanese Adverbs](https://example.com/your-research-paper-link).
 
-### Citation
+If you find our research and code useful in your work, we kindly request that you cite our associated research paper in your publications. You can find the paper through the following citation:
 
-If you use our research or findings in your work, we kindly request that you cite our paper using the following citation format:
+**Title:** [Title of Your Research Paper]
+**Authors:** [Your Name(s) and Collaborators]
+**Journal:** [Name of the Journal or Conference]
+**Year:** [Publication Year]
+**DOI:** [Digital Object Identifier, if available]
+
+Here is the preferred citation in BibTeX format:
+
+```bibtex
+@article{your_citation_key,
+  title = {Title of Your Research Paper},
+  author = {Your Name(s) and Collaborators},
+  journal = {Name of the Journal or Conference},
+  year = {Publication Year},
+  doi = {DOI if available}
+}
+
+<!-- LICENSE -->
+
+## License
+This project is open-source and is released under the [MIT License](LICENSE). Feel free to use and build upon our work while giving appropriate credit.
 
 
-<!-- MARKDOWN LINKS & IMAGES -->
-<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/github_username/repo_name.svg?style=for-the-badge
-[contributors-url]: https://github.com/github_username/repo_name/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/github_username/repo_name.svg?style=for-the-badge
-[forks-url]: https://github.com/github_username/repo_name/network/members
-[stars-shield]: https://img.shields.io/github/stars/github_username/repo_name.svg?style=for-the-badge
-[stars-url]: https://github.com/github_username/repo_name/stargazers
-[issues-shield]: https://img.shields.io/github/issues/github_username/repo_name.svg?style=for-the-badge
-[issues-url]: https://github.com/github_username/repo_name/issues
-[license-shield]: https://img.shields.io/github/license/github_username/repo_name.svg?style=for-the-badge
-[license-url]: https://github.com/github_username/repo_name/blob/master/LICENSE.txt
-[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
-[linkedin-url]: https://linkedin.com/in/linkedin_username
-[product-screenshot]: images/screenshot.png
