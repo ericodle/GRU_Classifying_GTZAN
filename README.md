@@ -163,6 +163,7 @@ Here is the preferred citation in BibTeX format:
   year = {Publication Year},
   doi = {DOI if available}
 }
+```
 
 <!-- LICENSE -->
 
