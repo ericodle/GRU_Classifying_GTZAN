@@ -122,7 +122,7 @@ This .wav file is provided as a test music clip. The file itself was taken from 
 
 ## Citing Our Research
 
-Our research paper provides a comprehensive overview of the methodology, results, and insights derived from this repository. You can access the full paper by following this link: [Comparing Recurrent Neural Network Typesin a Music Genre Classification Task: GatedRecurrent Unit Superiority Using theGTZAN Dataset](https://www.researchgate.net/publication/374698715_Comparing_Recurrent_Neural_Network_Types_in_a_Music_Genre_Classification_Task_Gated_Recurrent_Unit_Superiority_Using_the_GTZAN_Dataset)
+Our research paper provides a comprehensive overview of the methodology, results, and insights derived from this repository. You can access the full paper by following this link: [Comparing Recurrent Neural Network Typesin a Music Genre Classification Task: Gated Recurrent Unit Superiority Using the GTZAN Dataset](https://www.researchgate.net/publication/374698715_Comparing_Recurrent_Neural_Network_Types_in_a_Music_Genre_Classification_Task_Gated_Recurrent_Unit_Superiority_Using_the_GTZAN_Dataset)
 
 <!-- LICENSE -->
 
