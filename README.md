@@ -1,5 +1,5 @@
 <p align="center">
-  In this project, we explore various artifical neural network (ANN) approaches to achieve near-human accuracy in a music genre classification task. By converting raw .wav audio input into an array of MFCC values, we are able to achieve our best result (90.7% accuracy) using a Gated Recurrent Unit (GRU) model written in PyTorch. This repository serves as a source of supplementary material for a music genre classification conference paper currently under review. We herein archive our Python scripts and provide a sample Google Colab notebook for the reference of anyone interested.
+  In this project, we explore various artificial neural network (ANN) approaches to achieve near-human accuracy in a music genre classification task. By converting raw .wav audio input into an array of MFCC values, we are able to achieve our best result (90.7% accuracy) using a Gated Recurrent Unit (GRU) model written in PyTorch. This repository serves as a source of supplementary material for a music genre classification conference paper currently under review. We herein archive our Python scripts and provide a sample Google Colab notebook for the reference of anyone interested.
     <br />
     <br />
     <a href="https://github.com/github_username/repo_name/issues">Report Bug</a>
