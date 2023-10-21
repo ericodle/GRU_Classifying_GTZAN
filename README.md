@@ -70,7 +70,7 @@ The final model state will also be saved for the next phase: testing.
    ./train_model.py
    ```
 Note #1: Training requires a GPU to complete in a timely manner. You can either use your own hardware, or work on a Colab environment.
-If you use a GPU, make sure you have cuda and all related dependencies set up in your environment.
+If you use a GPU, make sure you have CUDA and all related dependencies set up in your environment.
 
 Note #2: Training is as much an art as it is a science, and often involves playing around with different hyperparameters. Users are encouraged to go into the train_model.py script and change the optimizer, learning rate, epochs, or other parameters. The default settings represent what worked best for us at the time of experimentation.
 
