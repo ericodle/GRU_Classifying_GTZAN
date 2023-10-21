@@ -84,7 +84,7 @@ In our conference paper, we used a shuffled 80:10:10 split for training, train p
   ./test_model.py
   ```
 
-Note: The entire MFCC extract JSON file is re-shuffled and split into 80:10:10 train/validation/test subsets each time the train_model.py and test_model.py  scripts are run. Therefore, each train and test run may yield slightly different results. In our experience working on this project, the only factors signifcantly affecting performance were neural network architecture and training hyperparameters.
+Note: The entire MFCC extract JSON file is re-shuffled and split into 80:10:10 train/validation/test subsets each time the train_model.py and test_model.py  scripts are run. Therefore, each train and test run may yield slightly different results. In our experience working on this project, the only factors significantly affecting performance were neural network architecture and training hyperparameters.
 
 ## Repository Files
 
@@ -98,7 +98,7 @@ This script can be called to test a trained neural network on labeled MFCC data.
 
 - [ ] models.py
 
-This bit of code defines the artifical neural network architectures used in our study. Classes for MLP, CNN, LSTM, BiLSTM, and GRU models are written for PyTorch, which we chose over Keras for its greater granular control. Users are welcome to use these model classes to conduct their own experimentation.
+This bit of code defines the artificial neural network architectures used in our study. Classes for MLP, CNN, LSTM, BiLSTM, and GRU models are written for PyTorch, which we chose over Keras for its greater granular control. Users are welcome to use these model classes to conduct their own experimentation.
 
 - [ ] MFCC_extraction.py
 
