@@ -1,5 +1,5 @@
 <p align="center">
-  In this project, we explore various artificial neural network (ANN) approaches to achieve near-human accuracy in a music genre classification task. By converting raw .wav audio input into an array of MFCC values, we are able to achieve our best result (90.7% accuracy) using a Gated Recurrent Unit (GRU) model written in PyTorch. This repository serves as a source of supplementary material for a music genre classification conference paper currently under review. We herein archive our Python scripts and provide a sample Google Colab notebook for the reference of anyone interested.
+  In this project, we explore various artificial neural network approaches to achieve high accuracy in a music genre classification task. Our method involves converting raw .wav audio input into an array of MFCC values.
     <br />
     <br />
     <a href="https://github.com/github_username/repo_name/issues">Report Bug</a>
@@ -12,9 +12,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About this Project
 
-This project was conducted in collaboration with Professor Rebecca Lin (Feng Chia University, Taiwan) during my time on the Taiwan Experience Exchange Program (TEEP). Ultimately, were able to train models with decent generalization and test classification accuracy. Our results are based on the [GTZAN](http://marsyas.info/index.html) music genre dataset, which provides 10 human-classified genre folders: blues, classical, country, disco, hip-hop, jazz, metal, pop, reggae, and rock. Each genre folder contains 100 30-second audio clips of genre-specific songs in .wav format. Following previous work in this field, we extracted [Mel-frequency cepstral coefficients](https://en.wikipedia.org/wiki/Mel-frequency_cepstrum), or MFCCs, from each audio clip, divided the entire shuffled set into an 80:10:10 train/validation/test split, and played around with multi-layer perceptron, convolutional, and recurrent networks until we got a model that achieved at least 90% accuracy.
-
-We hope this project inspires you to contribute to our project, incorporate our tools, and play around with machine learning.
+This project was conducted in collaboration with Professor Rebecca Lin (Feng Chia University, Taiwan) during my time on the Taiwan Experience Exchange Program (TEEP). Our results are based on the [GTZAN](http://marsyas.info/index.html) music genre dataset, which provides 10 human-classified genre folders: blues, classical, country, disco, hip-hop, jazz, metal, pop, reggae, and rock. Each genre folder contains 100 30-second audio clips of genre-specific songs in .wav format. We were able to achieve accuracies as high as 90%.
 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -51,7 +49,7 @@ Alternatively, you can also clone this repository directly using the following c
 
 ```sh
 # This script will extract MFCC's from each song clip.
-./MFCC_extraction.py
+./src/MFCC_extraction.py
 ```
 > Note that the resulting JSON file is saved in the "MFCCs" folder as a JSON file about 640 MB in size.
 
@@ -64,7 +62,7 @@ Your final trained model state will also be saved for the next phase -- testing.
 
    ```sh
    # Set up a new training run
-   ./train_model.py
+   ./src/train_model.py
    ```
 Note #1: Training requires a GPU to complete in a timely manner. You can either use your own hardware, or work in a Google Colab environment.
 If you use a GPU, make sure you have CUDA and all related dependencies set up.
@@ -78,7 +76,7 @@ In our conference paper, we used a shuffled 80:10:10 split for training, train p
 
   ```sh
   # Test a pre-trained model.
-  ./test_model.py
+  ./src/test_model.py
   ```
 
 Note: The entire MFCC JSON file is re-shuffled and split into 80:10:10 train/validation/test subsets each time the train_model.py and test_model.py scripts are run.
