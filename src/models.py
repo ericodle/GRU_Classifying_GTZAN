@@ -15,10 +15,10 @@ from torch.nn import functional as F
 from src import models
 
 ################################################
-#       　   Multi-Layer Perceptron     　 　   #
+#       　   Fully Connected    　 　   #
 ################################################
 
-class MLP_model(nn.Module):
+class FC_model(nn.Module):
   
   def __init__(self):
     super().__init__()
@@ -28,7 +28,7 @@ class MLP_model(nn.Module):
       nn.Flatten(),
       nn.ReLU(),
 
-      nn.Linear(1690, 256),
+      nn.Linear(16796, 256),
       nn.ReLU(),
       nn.Dropout(p=0.3),
 
@@ -76,7 +76,7 @@ class CNN_model(nn.Module):
       nn.Flatten(),
       nn.ReLU(),
 
-      nn.Linear(7680, 256),
+      nn.Linear(82432, 256),
       nn.ReLU(),
       nn.Dropout(p=0.2),
 
@@ -193,9 +193,13 @@ class TransformerLayer(nn.Module):
         x = self.norm2(x + ff_output)
         return x
 
-class Transformer_model(nn.Module):
+################################################
+#       　        Tr_FC           　 　   #
+################################################
+
+class Tr_FC(nn.Module):
     def __init__(self, input_dim, hidden_dim, num_layers, num_heads, ff_dim, output_dim, dropout):
-        super(Transformer_model, self).__init__()
+        super(Tr_FC, self).__init__()
         self.input_dim = input_dim
         self.transformer_layers = nn.ModuleList(
             [TransformerLayer(input_dim, hidden_dim, num_heads, ff_dim, dropout) for _ in range(num_layers)]
@@ -208,4 +212,96 @@ class Transformer_model(nn.Module):
         x = self.output_layer(x[:, -1, :])  # Taking the last token representation
         return F.log_softmax(x, dim=1)
 
+################################################
+#       　        Tr_CNN           　 　   #
+################################################
+
+class Tr_FC(nn.Module):
+    def __init__(self, input_dim, hidden_dim, num_layers, num_heads, ff_dim, output_dim, dropout):
+        super(Tr_FC, self).__init__()
+        self.input_dim = input_dim
+        self.transformer_layers = nn.ModuleList(
+            [TransformerLayer(input_dim, hidden_dim, num_heads, ff_dim, dropout) for _ in range(num_layers)]
+        )
+        self.conv_layers = nn.Sequential(
+            nn.Conv2d(1,256,kernel_size=(3,3), padding=1),
+            nn.ReLU(),
+            nn.Conv2d(256,256,kernel_size=(3,3), padding=1),
+            nn.ReLU(),
+            nn.AvgPool2d(3, stride=2),
+            nn.BatchNorm2d(256),
+            nn.Conv2d(256,256,kernel_size=(3,3), padding=1),
+            nn.ReLU(),
+            nn.AvgPool2d(3, stride=2),  
+            nn.BatchNorm2d(256),
+            nn.Conv2d(256,512,kernel_size=(4,4), padding=1),
+            nn.ReLU(),
+            nn.AvgPool2d(1, stride=2),
+            nn.BatchNorm2d(512)
+        )
+        self.fc_layers = nn.Sequential(
+            nn.Flatten(),
+            nn.ReLU(),
+            nn.Linear(82432, 256),
+            nn.ReLU(),
+            nn.Dropout(p=0.2),
+            nn.Linear(256, 128),
+            nn.ReLU(),
+            nn.Dropout(p=0.2),
+            nn.Linear(128, output_dim),
+            nn.Softmax(dim=1)
+        )
+
+    def forward(self, x):
+        for layer in self.transformer_layers:
+            x = layer(x)
+        x = self.conv_layers(x.unsqueeze(1))  # Adding an extra dimension for the channel
+        x = self.fc_layers(x)
+        return x
+
+################################################
+#       　        Tr_LSTM           　 　   #
+################################################
+
+class Tr_LSTM(nn.Module):
+    def __init__(self, input_dim, hidden_dim, num_layers, num_heads, ff_dim, output_dim, dropout):
+        super(Tr_LSTM, self).__init__()
+        self.input_dim = input_dim
+        self.transformer_layers = nn.ModuleList(
+            [TransformerLayer(input_dim, hidden_dim, num_heads, ff_dim, dropout) for _ in range(num_layers)]
+        )
+        # Initialize LSTM model
+        self.lstm = LSTM_model(input_dim, hidden_dim, num_layers, output_dim, dropout)
+        
+    def forward(self, x):
+        for layer in self.transformer_layers:
+            x = layer(x)
+        
+        # Pass output of the last Transformer layer to LSTM
+        lstm_out = self.lstm(x)
+        
+        return F.log_softmax(lstm_out, dim=1)
+
+################################################
+#       　        Tr_GRU           　 　   #
+################################################
+
+class Tr_GRU(nn.Module):
+    def __init__(self, input_dim, hidden_dim, num_layers, num_heads, ff_dim, output_dim, dropout):
+        super(Tr_GRU, self).__init__()
+        self.input_dim = input_dim
+        self.transformer_layers = nn.ModuleList(
+            [TransformerLayer(input_dim, hidden_dim, num_heads, ff_dim, dropout) for _ in range(num_layers)]
+        )
+        # Initialize LSTM model
+        self.gru = GRU_model(input_dim, hidden_dim, num_layers, output_dim, dropout)
+        
+    def forward(self, x):
+        for layer in self.transformer_layers:
+            x = layer(x)
+        
+        # Pass output of the last Transformer layer to LSTM
+        gru_out = self.gru(x)
+        
+        return F.log_softmax(gru_out, dim=1)
 
