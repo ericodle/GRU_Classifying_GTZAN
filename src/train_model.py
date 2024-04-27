@@ -12,8 +12,7 @@ import joblib
 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from sklearn.svm import SVC
-from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score, roc_auc_score, roc_curve, auc
 
 import torch
 from torch import nn
@@ -34,7 +33,7 @@ print("Using device", device)
 
 # path to json file that stores MFCCs and genre labels for each processed segment
 DATA_PATH = "./MFCCs/"
-FILENAME = "mfcc_data.json"
+FILENAME = "gtzan_mfccs.json"
 
 def load_data(data_path):
     """Loads training dataset from json file.
@@ -55,34 +54,38 @@ def load_data(data_path):
     return X, y
 
 def test_ann_model(model, test_dataloader, device='cpu'):
-    model.eval()    
-    torch.no_grad()
+    model.eval()
     count = 0
     correct = 0
     true = []
     preds = []
+    probs = []
 
     model = model.to(device)
 
-    for X_testbatch, y_testbatch in test_dataloader:
-        X_testbatch = X_testbatch.unsqueeze(1).to(device)
-        y_testbatch = y_testbatch.to(device)
+    with torch.no_grad():
+        for X_testbatch, y_testbatch in test_dataloader:
+            X_testbatch = X_testbatch.unsqueeze(1).to(device)
+            y_testbatch = y_testbatch.to(device)
 
-        y_val = model(X_testbatch)
+            y_val = model(X_testbatch)
+            y_probs = torch.softmax(y_val, dim=-1)
+            predicted = torch.max(y_val, 1)[1]
 
-        predicted = torch.max(y_val, 1)[1]
+            count += y_testbatch.size(dim=0)
+            correct += (predicted == y_testbatch).sum()
 
-        count += y_testbatch.size(dim=0)
-        correct += (predicted == y_testbatch).sum()
-
-        true.append(y_testbatch)
-        preds.append(predicted)
+            true.append(y_testbatch.cpu())
+            preds.append(predicted.cpu().detach())
+            probs.append(y_probs.cpu().detach())
 
     ground_truth = torch.cat(true)
     predicted_genres = torch.cat(preds)
-    accuracy = correct.item() / count
+    predicted_probs = torch.cat(probs)
+    accuracy = correct / count
 
-    return ground_truth, predicted_genres, accuracy
+    return ground_truth, predicted_genres, predicted_probs, accuracy
+
 
 def test_recurrent_model(model, test_dataloader, device='cpu'):
     model.eval()
@@ -90,6 +93,7 @@ def test_recurrent_model(model, test_dataloader, device='cpu'):
     correct = 0
     true = []
     preds = []
+    probs = []
 
     model = model.to(device)
 
@@ -98,12 +102,11 @@ def test_recurrent_model(model, test_dataloader, device='cpu'):
             X_testbatch = X_testbatch.to(device)
             y_testbatch = y_testbatch.to(device)
 
-            # Initialize hidden state and cell state on the same device as input data
             h0 = torch.zeros(model.layer_dim, X_testbatch.size(0), model.hidden_dim).to(device)
             c0 = torch.zeros(model.layer_dim, X_testbatch.size(0), model.hidden_dim).to(device)
 
             y_val = model(X_testbatch)
-
+            y_probs = torch.softmax(y_val, dim=-1)
             predicted = torch.max(y_val, 1)[1]
 
             count += y_testbatch.size(dim=0)
@@ -111,27 +114,15 @@ def test_recurrent_model(model, test_dataloader, device='cpu'):
 
             true.append(y_testbatch.cpu())
             preds.append(predicted.cpu().detach())
+            probs.append(y_probs.cpu().detach())
 
     ground_truth = torch.cat(true)
     predicted_genres = torch.cat(preds)
-    accuracy = correct.item() / count
+    predicted_probs = torch.cat(probs)
+    accuracy = correct / count
 
-    return ground_truth, predicted_genres, accuracy
+    return ground_truth, predicted_genres, predicted_probs, accuracy
 
-
-def test_svm_model(model, X_test, y_test):
-    # Flatten the test data if it's three-dimensional
-    if len(X_test.shape) == 3:
-        num_samples, num_features, num_timesteps = X_test.shape
-        X_test = X_test.reshape(num_samples, num_features * num_timesteps)
-
-    # Make predictions on test set
-    y_pred = model.predict(X_test)
-
-    # Calculate accuracy
-    accuracy = accuracy_score(y_test, y_pred)
-
-    return y_test, y_pred, accuracy
 
 def test_transformer_model(model, test_dataloader, device='cpu'):
     model.eval()
@@ -139,6 +130,7 @@ def test_transformer_model(model, test_dataloader, device='cpu'):
     correct = 0
     true = []
     preds = []
+    probs = []
 
     for X_testbatch, y_testbatch in test_dataloader:
         X_testbatch = X_testbatch.to(device)
@@ -146,11 +138,11 @@ def test_transformer_model(model, test_dataloader, device='cpu'):
 
         X_testbatch = X_testbatch.permute(0, 1, 2)
 
-        # Ensure model is also on the same device
         model = model.to(device)
 
         y_val = model(X_testbatch)
 
+        y_probs = torch.softmax(y_val, dim=-1)
         predicted = torch.max(y_val, 1)[1]
 
         count += y_testbatch.size(0)
@@ -158,14 +150,55 @@ def test_transformer_model(model, test_dataloader, device='cpu'):
 
         true.append(y_testbatch.detach().cpu())
         preds.append(predicted.detach().cpu())
+        probs.append(y_probs.detach().cpu())
 
     ground_truth = torch.cat(true)
     predicted_genres = torch.cat(preds)
+    predicted_probs = torch.cat(probs)
     accuracy = correct / count
 
-    return ground_truth, predicted_genres, accuracy
+    return ground_truth, predicted_genres, predicted_probs, accuracy
+
+def calculate_roc_auc(y_true, y_probs):
+    roc_auc_scores = []
+    for class_idx in range(y_probs.shape[1]):
+        roc_auc = roc_auc_score(y_true == class_idx, y_probs[:, class_idx])
+        roc_auc_scores.append(roc_auc)
+    return roc_auc_scores
+
+def plot_roc_curve(y_true, y_probs, class_names, output_directory):
+    auc_file = os.path.join(output_directory, 'auc.txt')
+    with open(auc_file, 'w') as f:
+        for class_idx in range(y_probs.shape[1]):
+            fpr, tpr, _ = roc_curve(y_true == class_idx, y_probs[:, class_idx])
+            roc_auc = auc(fpr, tpr)
+            f.write(f'{class_names[class_idx]}: {roc_auc:.2f}\n')
+    
+    plt.figure(figsize=(8, 6))
+    for class_idx in range(y_probs.shape[1]):
+        fpr, tpr, _ = roc_curve(y_true == class_idx, y_probs[:, class_idx])
+        roc_auc = auc(fpr, tpr)
+        plt.plot(fpr, tpr, label=f'{class_names[class_idx]} (AUC = {roc_auc:.2f})')
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('ROC Curves')
+    plt.legend(loc='lower right')  # Adjust legend position
+    output_file = os.path.join(output_directory, 'ROC.png')
+    plt.savefig(output_file)
+    plt.close()
+
 def save_ann_confusion_matrix(ground_truth, predicted_genres, class_names, output_directory):
+    # Compute confusion matrix
     arr = confusion_matrix(ground_truth.view(-1).detach().cpu().numpy(), predicted_genres.view(-1).detach().cpu().numpy())
+    
+    # Compute classification report
+    report = classification_report(ground_truth.view(-1).detach().cpu().numpy(), predicted_genres.view(-1).detach().cpu().numpy(),
+                                   target_names=class_names, output_dict=True)
+
+    # Convert report to DataFrame
+    df_report = pd.DataFrame(report).transpose()
+
+    # Save confusion matrix to image
     df_cm = pd.DataFrame(arr, class_names, class_names)
     plt.figure(figsize=(10, 7))
     sns.heatmap(df_cm, annot=True, fmt="d", cmap='BuGn')
@@ -176,34 +209,14 @@ def save_ann_confusion_matrix(ground_truth, predicted_genres, class_names, outpu
     plt.savefig(output_file)
     plt.close()
 
+    # Save accuracy metrics to text file
+    metrics_file = os.path.join(output_directory, 'confusion_metrics.txt')
+    with open(metrics_file, 'w') as f:
+        f.write("Classification Report:\n")
+        f.write(df_report.to_string())
 
-def save_svm_confusion_matrix(ground_truth, predicted_genres, class_names, output_directory):
+    print("Confusion matrix and accuracy metrics saved successfully.")
 
-    #ground_truth = ground_truth.flatten()
-    #predicted_genres = predicted_genres.flatten()
-
-    # Get unique labels from ground truth and predictions
-    unique_labels = np.unique(np.concatenate((ground_truth, predicted_genres)))
-
-    # Calculate confusion matrix
-    arr = confusion_matrix(ground_truth, predicted_genres, labels=unique_labels)
-
-    # Create DataFrame for visualization
-    df_cm = pd.DataFrame(arr, index=class_names, columns=class_names)
-
-    # Plot confusion matrix
-    plt.figure(figsize=(10, 7))
-    sns.heatmap(df_cm, annot=True, fmt="d", cmap='BuGn', cbar=False)
-    plt.xlabel("Predictions")
-    plt.ylabel("Ground Truths")
-    plt.title('Confusion Matrix', fontsize=15)
-    plt.xticks(rotation=45)  # Rotate x-axis labels if necessary
-    plt.yticks(rotation=0)   # Rotate y-axis labels if necessary
-
-    # Save confusion matrix to file
-    output_file = os.path.join(output_directory, 'confusion_matrix.png')
-    plt.savefig(output_file)
-    plt.close()
 
 def train_val_split(X, y, val_ratio):
     train_ratio = 1 - val_ratio
@@ -229,43 +242,6 @@ def cosine(t_max, eta_min=0):
         return eta_min + (base_lr - eta_min) * (1 + np.cos(np.pi * t / t_max)) / 2
     return scheduler
 
-def train_svm(X_train, y_train, X_val, y_val, output_directory):
-    # Flatten the input data if it's three-dimensional
-    if len(X_train.shape) == 3:
-        num_samples, num_features, num_timesteps = X_train.shape
-        X_train = X_train.reshape(num_samples, num_features * num_timesteps)
-
-    if len(X_val.shape) == 3:
-        num_samples_val, _, _ = X_val.shape
-        X_val = X_val.reshape(num_samples_val, num_features * num_timesteps)
-
-    # Scale the data
-    scaler = StandardScaler()
-    X_train_scaled = scaler.fit_transform(X_train)
-    X_val_scaled = scaler.transform(X_val)
-
-    # Train SVM
-    svm_model = SVC()
-    svm_model.fit(X_train_scaled, y_train)
-
-    # Save the SVM model
-    svm_model_path = os.path.join(output_directory, "svm_model.pkl")
-    joblib.dump(svm_model, svm_model_path)
-    print(f"SVM model saved at {svm_model_path}")
-
-    # Get predictions on validation set
-    y_pred = svm_model.predict(X_val_scaled)
-
-    # Calculate classification report
-    report = classification_report(y_val, y_pred)
-
-    # Save classification report to a text file
-    report_path = os.path.join(output_directory, "training_metrics.txt")
-    with open(report_path, 'w') as file:
-        file.write(report)
-    print(f"Training metrics saved at {report_path}")
-
-    return svm_model
 
 def plot_learning_metrics(train_loss, val_loss, train_acc, val_acc, output_directory):
     epochs = range(1, len(train_loss) + 1)
@@ -318,10 +294,10 @@ def main(model_type, output_directory, initial_lr):
 
     test_dataset = TensorDataset(tensor_X_test, tensor_y_test)
 
-    train_dataloader = DataLoader(train_dataset, batch_size=64, shuffle=True)
-    val_dataloader = DataLoader(val_dataset, batch_size=64, shuffle=True)
+    train_dataloader = DataLoader(train_dataset, batch_size=32, shuffle=True)
+    val_dataloader = DataLoader(val_dataset, batch_size=32, shuffle=True)
 
-    test_dataloader = DataLoader(test_dataset, batch_size=64, shuffle=True)
+    test_dataloader = DataLoader(test_dataset, batch_size=32, shuffle=True)
 
     train_loss = [] 
     val_loss = []   
@@ -337,30 +313,32 @@ def main(model_type, output_directory, initial_lr):
 
     # Initialize model based on model_type
 
-    if model_type == "SVM":
-        svm_model = train_svm(X_train, y_train, X_val, y_val, output_directory)
-    elif model_type == 'MLP':
-        model = models.MLP_model()
+    if model_type == 'FC':
+        model = models.FC_model()
     elif model_type == 'CNN':
         model = models.CNN_model()
     elif model_type == 'LSTM':
         model = models.LSTM_model(input_dim=13, hidden_dim=256, layer_dim=2, output_dim=10, dropout_prob=0.2)
     elif model_type == 'GRU':
         model = models.GRU_model(input_dim=13, hidden_dim=256, layer_dim=2, output_dim=10, dropout_prob=0.2)
-    elif model_type == "Transformer":
-        model = models.Transformer_model(input_dim=13, hidden_dim=256, num_layers=4, num_heads=1, ff_dim=4, dropout=0.2, output_dim=10)
+    elif model_type == "Tr_FC":
+        model = models.Tr_FC(input_dim=13, hidden_dim=256, num_layers=4, num_heads=1, ff_dim=4, dropout=0.2, output_dim=10)
+    elif model_type == "Tr_CNN":
+        model = models.Tr_FC(input_dim=13, hidden_dim=256, num_layers=4, num_heads=1, ff_dim=4, dropout=0.2, output_dim=10)
+    elif model_type == "Tr_LSTM":
+        model = models.Tr_FC(input_dim=13, hidden_dim=256, num_layers=4, num_heads=1, ff_dim=4, dropout=0.2, output_dim=10)
+    elif model_type == "Tr_GRU":
+        model = models.Tr_FC(input_dim=13, hidden_dim=256, num_layers=4, num_heads=1, ff_dim=4, dropout=0.2, output_dim=10)
     else:
-        raise ValueError("Invalid model_type. Supported types are: SVM, MLP, CNN, LSTM, and GRU.")
+        raise ValueError("Invalid model_type")
 
-    if model_type != "SVM":
-        model = model.to(device)
-        criterion = nn.CrossEntropyLoss()
-        opt = torch.optim.RMSprop(model.parameters(), lr=lr)
-        sched = CyclicLR(opt, cosine(t_max=iterations_per_epoch * 2, eta_min=lr / 100))
+    model = model.to(device)
+    criterion = nn.CrossEntropyLoss()
+    opt = torch.optim.RMSprop(model.parameters(), lr=lr)
+    sched = CyclicLR(opt, cosine(t_max=iterations_per_epoch * 2, eta_min=lr / 100))
+    print(f'Training {model_type} model with learning rate of {initial_lr}.')
 
-        print(f'Training {model_type} model with learning rate of {initial_lr}.')
-
-    if model_type == "MLP":
+    if model_type == "FC":
         for epoch in range(1, n_epochs + 1):
             tcorrect, ttotal = 0, 0
             running_train_loss = 0
@@ -415,13 +393,16 @@ def main(model_type, output_directory, initial_lr):
         for epoch in range(1, n_epochs + 1):
             tcorrect, ttotal = 0, 0
             running_train_loss = 0
+            
             for (x_batch, y_batch) in train_dataloader:
                 model.train()
-                x_batch = x_batch.unsqueeze(1)
+                x_batch = x_batch.unsqueeze(0)
+                x_batch = x_batch.permute(1, 0, 2, 3)
                 x_batch, y_batch = [t.cuda() for t in (x_batch, y_batch)]
                 y_batch = y_batch.to(torch.int64)
                 opt.zero_grad()
                 out = model(x_batch)
+
                 loss = criterion(out, y_batch)
                 running_train_loss += loss.item()
                 loss.backward()
@@ -557,7 +538,151 @@ def main(model_type, output_directory, initial_lr):
                     print(f'Early stopping on epoch {epoch}')
                     break
 
-    if model_type == "Transformer":
+    if model_type == "Tr_FC":
+        for epoch in range(1, n_epochs + 1):
+            tcorrect, ttotal = 0, 0
+            running_train_loss = 0
+            for (x_batch, y_batch) in train_dataloader:
+                model.train()
+                x_batch, y_batch = [t.cuda() for t in (x_batch, y_batch)]
+                y_batch = y_batch.to(torch.int64)
+                opt.zero_grad()
+                out = model(x_batch)
+                loss = criterion(out, y_batch)
+                running_train_loss += loss.item()
+                loss.backward()
+                opt.step()
+                sched.step()
+                _,pred = torch.max(out, dim=1)
+                ttotal += y_batch.size(0)
+                tcorrect += torch.sum(pred==y_batch).item()
+            train_acc.append(100 * tcorrect / ttotal)
+            epoch_train_loss = running_train_loss / len(train_dataloader)
+            train_loss.append(epoch_train_loss)
+            model.eval()
+            vcorrect, vtotal = 0, 0
+            running_val_loss = 0
+            for x_val, y_val in val_dataloader:
+                x_val, y_val = [t.cuda() for t in (x_val, y_val)]
+                out = model(x_val)
+                preds = F.log_softmax(out, dim=1).argmax(dim=1)
+                vtotal += y_val.size(0)
+                vcorrect += (preds == y_val).sum().item()
+                running_val_loss += criterion(out, y_val.long()).item()
+            vacc = vcorrect / vtotal
+            val_acc.append(vacc*100)
+            epoch_val_loss = running_val_loss / len(val_dataloader)
+            val_loss.append(epoch_val_loss)
+            if epoch % 5 == 0:
+                print(f'Epoch: {epoch:3d}. Loss: {loss.item():.4f}. Val Acc.: {vacc:2.2%}')
+            if vacc > best_acc:
+                trials = 0
+                best_acc = vacc
+                torch.save(model, os.path.join(output_directory, "model"))
+                print(f'Epoch {epoch} best model saved with val accuracy: {best_acc:2.2%}')
+            else:
+                trials += 1
+                if trials >= patience:
+                    print(f'Early stopping on epoch {epoch}')
+                    break
+
+    if model_type == "Tr_CNN":
+        for epoch in range(1, n_epochs + 1):
+            tcorrect, ttotal = 0, 0
+            running_train_loss = 0
+            for (x_batch, y_batch) in train_dataloader:
+                model.train()
+                x_batch, y_batch = [t.cuda() for t in (x_batch, y_batch)]
+                y_batch = y_batch.to(torch.int64)
+                opt.zero_grad()
+                out = model(x_batch)
+                loss = criterion(out, y_batch)
+                running_train_loss += loss.item()
+                loss.backward()
+                opt.step()
+                sched.step()
+                _,pred = torch.max(out, dim=1)
+                ttotal += y_batch.size(0)
+                tcorrect += torch.sum(pred==y_batch).item()
+            train_acc.append(100 * tcorrect / ttotal)
+            epoch_train_loss = running_train_loss / len(train_dataloader)
+            train_loss.append(epoch_train_loss)
+            model.eval()
+            vcorrect, vtotal = 0, 0
+            running_val_loss = 0
+            for x_val, y_val in val_dataloader:
+                x_val, y_val = [t.cuda() for t in (x_val, y_val)]
+                out = model(x_val)
+                preds = F.log_softmax(out, dim=1).argmax(dim=1)
+                vtotal += y_val.size(0)
+                vcorrect += (preds == y_val).sum().item()
+                running_val_loss += criterion(out, y_val.long()).item()
+            vacc = vcorrect / vtotal
+            val_acc.append(vacc*100)
+            epoch_val_loss = running_val_loss / len(val_dataloader)
+            val_loss.append(epoch_val_loss)
+            if epoch % 5 == 0:
+                print(f'Epoch: {epoch:3d}. Loss: {loss.item():.4f}. Val Acc.: {vacc:2.2%}')
+            if vacc > best_acc:
+                trials = 0
+                best_acc = vacc
+                torch.save(model, os.path.join(output_directory, "model"))
+                print(f'Epoch {epoch} best model saved with val accuracy: {best_acc:2.2%}')
+            else:
+                trials += 1
+                if trials >= patience:
+                    print(f'Early stopping on epoch {epoch}')
+                    break
+
+    if model_type == "Tr_LSTM":
+        for epoch in range(1, n_epochs + 1):
+            tcorrect, ttotal = 0, 0
+            running_train_loss = 0
+            for (x_batch, y_batch) in train_dataloader:
+                model.train()
+                x_batch, y_batch = [t.cuda() for t in (x_batch, y_batch)]
+                y_batch = y_batch.to(torch.int64)
+                opt.zero_grad()
+                out = model(x_batch)
+                loss = criterion(out, y_batch)
+                running_train_loss += loss.item()
+                loss.backward()
+                opt.step()
+                sched.step()
+                _,pred = torch.max(out, dim=1)
+                ttotal += y_batch.size(0)
+                tcorrect += torch.sum(pred==y_batch).item()
+            train_acc.append(100 * tcorrect / ttotal)
+            epoch_train_loss = running_train_loss / len(train_dataloader)
+            train_loss.append(epoch_train_loss)
+            model.eval()
+            vcorrect, vtotal = 0, 0
+            running_val_loss = 0
+            for x_val, y_val in val_dataloader:
+                x_val, y_val = [t.cuda() for t in (x_val, y_val)]
+                out = model(x_val)
+                preds = F.log_softmax(out, dim=1).argmax(dim=1)
+                vtotal += y_val.size(0)
+                vcorrect += (preds == y_val).sum().item()
+                running_val_loss += criterion(out, y_val.long()).item()
+            vacc = vcorrect / vtotal
+            val_acc.append(vacc*100)
+            epoch_val_loss = running_val_loss / len(val_dataloader)
+            val_loss.append(epoch_val_loss)
+            if epoch % 5 == 0:
+                print(f'Epoch: {epoch:3d}. Loss: {loss.item():.4f}. Val Acc.: {vacc:2.2%}')
+            if vacc > best_acc:
+                trials = 0
+                best_acc = vacc
+                torch.save(model, os.path.join(output_directory, "model"))
+                print(f'Epoch {epoch} best model saved with val accuracy: {best_acc:2.2%}')
+            else:
+                trials += 1
+                if trials >= patience:
+                    print(f'Early stopping on epoch {epoch}')
+                    break
+
+    if model_type == "Tr_GRU":
         for epoch in range(1, n_epochs + 1):
             tcorrect, ttotal = 0, 0
             running_train_loss = 0
@@ -609,23 +734,12 @@ def main(model_type, output_directory, initial_lr):
 
     #Evaluate trained model
 
-    if model_type == "SVM":
-        # Test the model
-        ground_truth, predicted_genres, accuracy = test_svm_model(svm_model, tensor_X_test, tensor_y_test)
-
-        # Print test accuracy
-        print(f'Test accuracy: {accuracy * 100:.2f}%')
-
-        # Plot confusion matrix
-        class_names = ['pop', 'classical', 'jazz', 'hiphop', 'reggae', 'disco', 'metal', 'country', 'blues', 'rock']
-        save_svm_confusion_matrix(ground_truth, predicted_genres, class_names, output_directory)
-
-    if model_type == "MLP":
+    if model_type == "FC":
         plot_learning_metrics(train_loss, val_loss, train_acc, val_acc, output_directory)
         print("Learning metrics plotted!")
 
         # Test the model
-        ground_truth, predicted_genres, accuracy = test_ann_model(model, test_dataloader)
+        ground_truth, predicted_genres, predicted_probs, accuracy = test_ann_model(model, test_dataloader)
 
         # Print test accuracy
         print(f'Test accuracy: {accuracy * 100:.2f}%')
@@ -633,13 +747,23 @@ def main(model_type, output_directory, initial_lr):
         # Plot confusion matrix
         class_names = ['pop', 'classical', 'jazz', 'hiphop', 'reggae', 'disco', 'metal', 'country', 'blues', 'rock']
         save_ann_confusion_matrix(ground_truth, predicted_genres, class_names, output_directory)
+
+        # Calculate ROC AUC scores
+        roc_auc_scores = calculate_roc_auc(ground_truth, predicted_probs)
+
+        # Print ROC AUC scores
+        for class_idx, score in enumerate(roc_auc_scores):
+            print(f'Class {class_idx} ROC AUC: {score:.4f}')
+
+        # Plot ROC curves
+        plot_roc_curve(ground_truth, predicted_probs, class_names, output_directory)
 
     if model_type == "CNN":
         plot_learning_metrics(train_loss, val_loss, train_acc, val_acc, output_directory)
         print("Learning metrics plotted!")
 
         # Test the model
-        ground_truth, predicted_genres, accuracy = test_ann_model(model, test_dataloader)
+        ground_truth, predicted_genres, predicted_probs, accuracy = test_ann_model(model, test_dataloader)
 
         # Print test accuracy
         print(f'Test accuracy: {accuracy * 100:.2f}%')
@@ -647,13 +771,24 @@ def main(model_type, output_directory, initial_lr):
         # Plot confusion matrix
         class_names = ['pop', 'classical', 'jazz', 'hiphop', 'reggae', 'disco', 'metal', 'country', 'blues', 'rock']
         save_ann_confusion_matrix(ground_truth, predicted_genres, class_names, output_directory)
+
+        # Calculate ROC AUC scores
+        roc_auc_scores = calculate_roc_auc(ground_truth, predicted_probs)
+
+        # Print ROC AUC scores
+        for class_idx, score in enumerate(roc_auc_scores):
+            print(f'Class {class_idx} ROC AUC: {score:.4f}')
+
+        # Plot ROC curves
+        plot_roc_curve(ground_truth, predicted_probs, class_names, output_directory)
+
 
     if model_type == "LSTM":
         plot_learning_metrics(train_loss, val_loss, train_acc, val_acc, output_directory)
         print("Learning metrics plotted!")
 
         # Test the model
-        ground_truth, predicted_genres, accuracy = test_recurrent_model(model, test_dataloader, device=device)
+        ground_truth, predicted_genres, predicted_probs, accuracy = test_recurrent_model(model, test_dataloader, device=device)
 
         # Print test accuracy
         print(f'Test accuracy: {accuracy * 100:.2f}%')
@@ -661,13 +796,23 @@ def main(model_type, output_directory, initial_lr):
         # Plot confusion matrix
         class_names = ['pop', 'classical', 'jazz', 'hiphop', 'reggae', 'disco', 'metal', 'country', 'blues', 'rock']
         save_ann_confusion_matrix(ground_truth, predicted_genres, class_names, output_directory)
+
+        # Calculate ROC AUC scores
+        roc_auc_scores = calculate_roc_auc(ground_truth, predicted_probs)
+
+        # Print ROC AUC scores
+        for class_idx, score in enumerate(roc_auc_scores):
+            print(f'Class {class_idx} ROC AUC: {score:.4f}')
+
+        # Plot ROC curves
+        plot_roc_curve(ground_truth, predicted_probs, class_names, output_directory)
 
     if model_type == "GRU":
         plot_learning_metrics(train_loss, val_loss, train_acc, val_acc, output_directory)
         print("Learning metrics plotted!")
 
         # Test the model
-        ground_truth, predicted_genres, accuracy = test_recurrent_model(model, test_dataloader, device=device)
+        ground_truth, predicted_genres, predicted_probs, accuracy = test_recurrent_model(model, test_dataloader, device=device)
 
         # Print test accuracy
         print(f'Test accuracy: {accuracy * 100:.2f}%')
@@ -676,12 +821,22 @@ def main(model_type, output_directory, initial_lr):
         class_names = ['pop', 'classical', 'jazz', 'hiphop', 'reggae', 'disco', 'metal', 'country', 'blues', 'rock']
         save_ann_confusion_matrix(ground_truth, predicted_genres, class_names, output_directory)
 
-    if model_type == "Transformer":
+        # Calculate ROC AUC scores
+        roc_auc_scores = calculate_roc_auc(ground_truth, predicted_probs)
+
+        # Print ROC AUC scores
+        for class_idx, score in enumerate(roc_auc_scores):
+            print(f'Class {class_idx} ROC AUC: {score:.4f}')
+
+        # Plot ROC curves
+        plot_roc_curve(ground_truth, predicted_probs, class_names, output_directory)
+
+    if model_type == "Tr_FC":
         plot_learning_metrics(train_loss, val_loss, train_acc, val_acc, output_directory)
         print("Learning metrics plotted!")
 
         # Test the model
-        ground_truth, predicted_genres, accuracy = test_transformer_model(model, test_dataloader)
+        ground_truth, predicted_genres, predicted_probs, accuracy = test_transformer_model(model, test_dataloader)
 
         # Print test accuracy
         print(f'Test accuracy: {accuracy * 100:.2f}%')
@@ -690,13 +845,93 @@ def main(model_type, output_directory, initial_lr):
         class_names = ['pop', 'classical', 'jazz', 'hiphop', 'reggae', 'disco', 'metal', 'country', 'blues', 'rock']
         save_ann_confusion_matrix(ground_truth, predicted_genres, class_names, output_directory)
 
+        # Calculate ROC AUC scores
+        roc_auc_scores = calculate_roc_auc(ground_truth, predicted_probs)
+
+        # Print ROC AUC scores
+        for class_idx, score in enumerate(roc_auc_scores):
+            print(f'Class {class_idx} ROC AUC: {score:.4f}')
+
+        # Plot ROC curves
+        plot_roc_curve(ground_truth, predicted_probs, class_names, output_directory)
+
+    if model_type == "Tr_CNN":
+        plot_learning_metrics(train_loss, val_loss, train_acc, val_acc, output_directory)
+        print("Learning metrics plotted!")
+
+        # Test the model
+        ground_truth, predicted_genres, predicted_probs, accuracy = test_transformer_model(model, test_dataloader)
+
+        # Print test accuracy
+        print(f'Test accuracy: {accuracy * 100:.2f}%')
+
+        # Plot confusion matrix
+        class_names = ['pop', 'classical', 'jazz', 'hiphop', 'reggae', 'disco', 'metal', 'country', 'blues', 'rock']
+        save_ann_confusion_matrix(ground_truth, predicted_genres, class_names, output_directory)
+
+        # Calculate ROC AUC scores
+        roc_auc_scores = calculate_roc_auc(ground_truth, predicted_probs)
+
+        # Print ROC AUC scores
+        for class_idx, score in enumerate(roc_auc_scores):
+            print(f'Class {class_idx} ROC AUC: {score:.4f}')
+
+        # Plot ROC curves
+        plot_roc_curve(ground_truth, predicted_probs, class_names, output_directory)
+
+    if model_type == "Tr_LSTM":
+        plot_learning_metrics(train_loss, val_loss, train_acc, val_acc, output_directory)
+        print("Learning metrics plotted!")
+
+        # Test the model
+        ground_truth, predicted_genres, predicted_probs, accuracy = test_transformer_model(model, test_dataloader, device=device)
+
+        # Print test accuracy
+        print(f'Test accuracy: {accuracy * 100:.2f}%')
+
+        # Plot confusion matrix
+        class_names = ['pop', 'classical', 'jazz', 'hiphop', 'reggae', 'disco', 'metal', 'country', 'blues', 'rock']
+        save_ann_confusion_matrix(ground_truth, predicted_genres, class_names, output_directory)
+
+        # Calculate ROC AUC scores
+        roc_auc_scores = calculate_roc_auc(ground_truth, predicted_probs)
+
+        # Print ROC AUC scores
+        for class_idx, score in enumerate(roc_auc_scores):
+            print(f'Class {class_idx} ROC AUC: {score:.4f}')
+
+        # Plot ROC curves
+        plot_roc_curve(ground_truth, predicted_probs, class_names, output_directory)
+
+    if model_type == "Tr_GRU":
+        plot_learning_metrics(train_loss, val_loss, train_acc, val_acc, output_directory)
+        print("Learning metrics plotted!")
+
+        # Test the model
+        ground_truth, predicted_genres, predicted_probs, accuracy = test_transformer_model(model, test_dataloader, device=device)
+
+        # Print test accuracy
+        print(f'Test accuracy: {accuracy * 100:.2f}%')
+
+        # Plot confusion matrix
+        class_names = ['pop', 'classical', 'jazz', 'hiphop', 'reggae', 'disco', 'metal', 'country', 'blues', 'rock']
+        save_ann_confusion_matrix(ground_truth, predicted_genres, class_names, output_directory)
+
+        # Calculate ROC AUC scores
+        roc_auc_scores = calculate_roc_auc(ground_truth, predicted_probs)
+
+        # Print ROC AUC scores
+        for class_idx, score in enumerate(roc_auc_scores):
+            print(f'Class {class_idx} ROC AUC: {score:.4f}')
+
+        # Plot ROC curves
+        plot_roc_curve(ground_truth, predicted_probs, class_names, output_directory)
 
 if __name__ == '__main__':
     # Pass arguments via command line arguments when running the script
-    model_type = sys.argv[1]  # e.g., "MLP", "CNN", "LSTM", "GRU", or "Transformer"
+    model_type = sys.argv[1]  # e.g., "FC", "CNN", "LSTM", "GRU", or "Tr__"
     output_directory = sys.argv[2]  # e.g., "./output/"
     initial_lr = float(sys.argv[3])  # e.g., 0.001
 
     # Call main function with provided arguments
     main(model_type, output_directory, initial_lr)
-
