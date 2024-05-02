@@ -101,9 +101,6 @@ This script extracts MFCCs from the GTZAN dataset music files and saves them in 
 
 - [ ] MFCC_primer.ipynb
 
-This Jupyter Notebook with direct link to a ready-to-use Google Colab environment is intended to answer the questions "What is an MFCC?" and "How do I generate them?"
-
-- [ ] live_runs
 
 This folder contains a collection of Jupyter Notebooks (linked to Google Colab) that were saved and uploaded to GitHub immediately after running. In their currently saved state, they serve as a record of the experimental runs on which we base our results. Users are welcome to play around with these scripts and try to beat our top test accuracy of 90.7%.
 
