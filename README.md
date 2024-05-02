@@ -109,7 +109,7 @@ python3 ./src/MFCC_extraction.py ./gtzan ./MFCCs gtzan_mfccs.json
 ```
 > Now, the resulting JSON file is saved in the "MFCCs" folder.
 
-### Train a model from scratch
+### Train a model
 
 Run the following script to train a new grenre classification model.
 Specify the type of neural network you want to use. This project explores fully-connected, convolutional, recurrent, and transformer-augmented models.
@@ -119,21 +119,8 @@ We can do this using the train_model.py script by passing arguments for the mode
 # Set up a new training run
 python3 ./src/train_model.py LSTM ./output_directory 0.0001
 ```
-Note #1: Training requires a GPU to complete in a timely manner. You can either use your own hardware, or work in a Google Colab environment.
-If you use a GPU, make sure you have CUDA and all related dependencies set up.
+NOTE: This script assumes the GTZAN MFCC extracts are saved as ./MFCCs/gtzan_mfccs.json
 
-
-### Testing a trained model
-
-Once you have a model trained from scratch on MFCCs extracted from the GTZAN music genre dataset, you should test how well it classifies music genres.
-In our conference paper, we used a shuffled 80:10:10 split for training, train phase validation, and testing. Therefore, the music clip segments reserved for testing come from the same dataset but have never been seen by the model before.
-
-  ```sh
-  # Test a pre-trained model.
-  ./src/test_model.py
-  ```
-
-Note: The entire MFCC JSON file is re-shuffled and split into 80:10:10 train/validation/test subsets each time the train_model.py and test_model.py scripts are run.
 
 ## Repository Files
 
@@ -141,9 +128,9 @@ Note: The entire MFCC JSON file is re-shuffled and split into 80:10:10 train/val
 
 This script can be called to train a pre-defined neural network class on labeled MFCC data. Upon training completion, the user will be provided a graph of both training and validation following each train epoch. This graph can be useful in diagnosing neural network issues such as overfitting.
 
-- [ ] test_model.py
+- [ ] model_sort.py
 
-This script can be called to test a trained neural network on labeled MFCC data. Once executed, a confusion matrix image will be generated to show the user how well the neural network was able to classify each song.
+This script can be called to sort songs; intended for future work.
 
 - [ ] models.py
 
