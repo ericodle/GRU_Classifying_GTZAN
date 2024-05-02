@@ -99,7 +99,7 @@ pip install -r requirements.txt
 
 The GTZAN dataset is a collection of .wav files. We need to convert those into MFCCs for our analysis.
 
-We can do this by using the MFCC_extraction.py script by passing arguments for the gtzan filepath, output path where you want to save the results, and the name you want to call the file
+We can do this using the MFCC_extraction.py script by passing arguments for the gtzan filepath, output path where you want to save the results, and the name you want to call the file
 
 Here is an example:
 
@@ -111,19 +111,17 @@ python3 ./src/MFCC_extraction.py ./gtzan ./MFCCs gtzan_mfccs.json
 
 ### Train a model from scratch
 
-Run the following script to set up a new experiment with default settings.
-Specify the type of neural network you want to use.
-After training is complete, a train/validation curve will be saved in the project root directory.
-Your final trained model state will also be saved for the next phase -- testing. 
+Run the following script to train a new grenre classification model.
+Specify the type of neural network you want to use. This project explores fully-connected, convolutional, recurrent, and transformer-augmented models.
+We can do this using the train_model.py script by passing arguments for the model type, output directory, and iitial learning rate (recommended lr=0.0001).
 
-   ```sh
-   # Set up a new training run
-   ./src/train_model.py
-   ```
+```sh
+# Set up a new training run
+python3 ./src/train_model.py LSTM ./output_directory 0.0001
+```
 Note #1: Training requires a GPU to complete in a timely manner. You can either use your own hardware, or work in a Google Colab environment.
 If you use a GPU, make sure you have CUDA and all related dependencies set up.
 
-Note #2: Training a neural network involves trial and error with different model hyperparameters (hidden layers, learning rate, optimizer function, and more). Feel free to go into the train_model.py script and change these parameters as necessary. Default settings represent what worked best for us at the time of experimentation.
 
 ### Testing a trained model
 
