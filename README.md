@@ -92,15 +92,22 @@ pip install -r requirements.txt
 
 ### Download GTZAN and extract MFCCs
 
-> Training/testing music used for this project came from the GTZAN music genre dataset, which can be downloaded [here](https://www.kaggle.com/datasets/andradaolteanu/gtzan-dataset-music-genre-classification/download) from Kaggle. 
-> You will need to set up a Kaggle account to get the files. 
-> Next, relocate the full dataset (parent folder containing 10 genre sub-folders, each with 100 music clips) into the "GTZAN_dataset" project folder.
+ Training/testing music used for this project came from the GTZAN music genre dataset. 
+ download and save the GTZAN dataset into the GRU_Classifying_GTZAN-main project folder.
+
+#### Pre-process the GTZAN dataset into MFCCs
+
+The GTZAN dataset is a collection of .wav files. We need to convert those into MFCCs for our analysis.
+
+We can do this by using the MFCC_extraction.py script by passing arguments for the gtzan filepath, output path where you want to save the results, and the name you want to call the file
+
+Here is an example:
 
 ```sh
 # This script will extract MFCC's from each song clip.
-./src/MFCC_extraction.py
+python3 ./src/MFCC_extraction.py ./gtzan ./MFCCs gtzan_mfccs.json 
 ```
-> Note that the resulting JSON file is saved in the "MFCCs" folder as a JSON file about 640 MB in size.
+> Now, the resulting JSON file is saved in the "MFCCs" folder.
 
 ### Train a model from scratch
 
